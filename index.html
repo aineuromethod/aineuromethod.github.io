@@ -8,7 +8,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&display=swap" rel="stylesheet">
-    <!-- pdf.js для извлечения текста из PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
         :root {
@@ -181,7 +180,7 @@
         .stage { width: fit-content; padding: 5px 10px; color: var(--accent-dark); background: var(--accent-light); border-radius: 20px; font-size: 13px; font-weight: 800; letter-spacing: 0.01em; }
         .meta-list { display: grid; gap: 8px; margin: 0; }
         .meta-list dt { color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; }
-        .meta-list dd { margin: 0; font-weight: 600; } /* усиление текста */
+        .meta-list dd { margin: 0; font-weight: 600; }
         .tool-card .button { margin-top: auto; }
 
         .audience-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
@@ -222,9 +221,7 @@
         .char-counter { justify-self: end; color: var(--muted); font-size: 12px; }
 
         /* Поле загрузки файла */
-        .file-upload-area {
-            display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
-        }
+        .file-upload-area { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .file-upload-area input[type="file"] { display: none; }
         .file-upload-label {
             display: inline-flex; align-items: center; gap: 6px;
@@ -317,6 +314,18 @@
         .course-banner .button.secondary { background: transparent; border-color: #fff; color: #fff; }
         .course-banner .button.secondary:hover { background: rgba(255,255,255,0.15); }
 
+        /* Блок между формой и результатом */
+        .tool-upsell {
+            margin: 20px 0;
+            padding: 20px 24px;
+            background: var(--surface-2);
+            border-radius: var(--radius-md);
+            text-align: center;
+            border: 1px solid var(--line);
+        }
+        .tool-upsell p { margin: 0 0 14px; font-weight: 600; color: var(--ink); }
+        .tool-upsell .button { font-size: 14px; }
+
         .footer {
             display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px;
             padding: 24px clamp(18px, 4vw, 54px); color: var(--muted);
@@ -375,7 +384,6 @@
     </style>
 </head>
 <body>
-    <!-- Модальное окно пароля -->
     <div class="modal-overlay" id="password-modal">
         <div class="modal-dialog">
             <h3>Введите пароль</h3>
@@ -416,154 +424,171 @@
     </footer>
 
     <script>
-        // Ключ OpenAI (MVP, небезопасно, заменить на серверный прокси при развертывании)
-        const OPENAI_API_KEY = 'key_3iIG2T4FoB6ZOeVV';
-
-        // Инструменты с системными промптами
+        // Инструменты
         window.__TOOLS__ = [
             {
                 id: "brief", slug: "brief", name: "Нейрометод.Бриф AI",
                 stage: "Запрос заказчика",
-                role: "Разбирает первичный запрос заказчика и превращает его в понятный проектный бриф: цель, аудитория, учебная задача, ограничения, риски и вопросы для уточнения.",
+                role: "Разбирает первичный запрос заказчика и превращает его в понятный проектный бриф.",
                 inputTitle: "Опишите запрос заказчика",
-                inputPlaceholder: "Например: заказчик хочет обучить отдел продаж работать с договорами, потому что сотрудники часто обращаются к юристам по повторяющимся вопросам...",
+                inputPlaceholder: "Например: заказчик хочет обучить отдел продаж работать с договорами...",
                 buttonLabel: "Собрать бриф",
                 loaderText: "Разбираю запрос и собираю проектный бриф...",
                 maxLength: 5000,
                 systemPrompt: `Ты — методолог-аналитик. Проанализируй сырой запрос заказчика и составь структурированный проектный бриф. Включи: суть запроса, бизнес-цель, учебную задачу, целевую аудиторию, что неясно, вопросы заказчику, риски проекта, черновой бриф и следующий шаг. Отвечай строго в формате JSON с полями: requestSummary, businessGoal, learningTask, targetAudience, missingData (массив), questionsForClient (массив), projectRisks (массив), draftBrief, nextStep.`,
                 demoResult: {
-                    requestSummary: "Заказчик (производственная обувная компания) хочет обучить продавцов B2B юридической грамотности, чтобы сократить обращения к юристам по типовым вопросам.",
+                    requestSummary: "Заказчик (производственная обувная компания) хочет обучить продавцов B2B юридической грамотности.",
                     businessGoal: "Снизить нагрузку на юридический отдел и ускорить процесс согласования договоров.",
-                    learningTask: "Научить продавцов самостоятельно работать с типовыми договорами, понимать зоны ответственности и риски.",
+                    learningTask: "Научить продавцов самостоятельно работать с типовыми договорами.",
                     targetAudience: "Менеджеры корпоративных продаж, не мотивированы к обучению.",
-                    missingData: ["Точный перечень типовых ошибок", "Текущий уровень знаний", "Наличие шаблонов договоров"],
-                    questionsForClient: ["Какие именно ошибки чаще всего совершают менеджеры?", "Есть ли утверждённые шаблоны договоров?", "Какие изменения менеджеры могут вносить самостоятельно?"],
-                    projectRisks: ["Сопротивление обучению", "Неполнота шаблонов", "Разное понимание ответственности"],
-                    draftBrief: "Короткий онлайн-курс по юридической грамотности с акцентом на практику и чек-листы.",
+                    missingData: ["Точный перечень ошибок", "Текущий уровень знаний", "Наличие шаблонов"],
+                    questionsForClient: ["Какие ошибки чаще всего совершают?", "Есть ли шаблоны договоров?", "Что можно менять самостоятельно?"],
+                    projectRisks: ["Сопротивление обучению", "Неполнота шаблонов"],
+                    draftBrief: "Короткий онлайн-курс по юридической грамотности с акцентом на практику.",
                     nextStep: "Провести интервью с руководителем отдела продаж и юристом."
                 }
             },
             {
                 id: "profile", slug: "profile", name: "Нейрометод.Профиль AI",
                 stage: "Аудитория обучения",
-                role: "Помогает описать целевую аудиторию курса: рабочий контекст, боли, барьеры, мотивацию, уровень подготовки и условия применения навыка.",
+                role: "Помогает описать целевую аудиторию курса: рабочий контекст, боли, барьеры, мотивацию.",
                 inputTitle: "Опишите аудиторию и тему обучения",
-                inputPlaceholder: "Например: аудитория — менеджеры отдела продаж, 25–35 лет, работают с корпоративными клиентами, не любят длительное обучение, часто ошибаются в документах...",
+                inputPlaceholder: "Например: аудитория — менеджеры отдела продаж, 25–35 лет...",
                 buttonLabel: "Собрать профиль аудитории",
                 loaderText: "Строю гипотезу о целевой аудитории...",
                 maxLength: 4000,
-                systemPrompt: `Ты — специалист по анализу аудитории. На основе описания составь профиль аудитории для курса: рабочий контекст, вероятные боли, барьеры обучения, мотивационные факторы, риски гипотезы, что нужно проверить, вопросы для HR/руководителя, выводы для проектирования. Отвечай JSON с полями: audienceProfile, workContext, probablePains (массив), learningBarriers (массив), motivationFactors (массив), hypothesisRisks (массив), whatToValidate (массив), questionsForHR (массив), designImplications.`,
+                systemPrompt: `Ты — специалист по анализу аудитории. На основе описания составь профиль аудитории для курса: рабочий контекст, боли, барьеры, мотивационные факторы, риски гипотезы, что проверить, вопросы для HR/руководителя, выводы для проектирования. Ответ JSON с полями: audienceProfile, workContext, probablePains (массив), learningBarriers (массив), motivationFactors (массив), hypothesisRisks (массив), whatToValidate (массив), questionsForHR (массив), designImplications.`,
                 demoResult: {
                     audienceProfile: "Менеджеры корпоративных продаж, 25-35 лет, работа с B2B-клиентами, низкая мотивация к обучению.",
-                    workContext: "Ежедневная работа с договорами, высокая загрузка, необходимость быстрого согласования.",
+                    workContext: "Ежедневная работа с договорами, высокая загрузка.",
                     probablePains: ["Нехватка времени", "Боязнь ошибок", "Непонимание юридических нюансов"],
                     learningBarriers: ["Низкая мотивация", "Скептицизм к теории", "Отсутствие времени"],
-                    motivationFactors: ["Ускорение сделок", "Снижение зависимости от юристов", "Возможный бонус"],
-                    hypothesisRisks: ["Аудитория может быть разнородной", "Разный уровень базовых знаний"],
-                    whatToValidate: ["Реальный уровень знаний", "Типичные рабочие сценарии", "Готовность руководителей поддерживать обучение"],
-                    questionsForHR: ["Какие KPI улучшатся после обучения?", "Есть ли примеры успешных/неуспешных кейсов?"],
-                    designImplications: "Микрообучение, короткие видео, тренажёры на реальных кейсах, чек-листы."
+                    motivationFactors: ["Ускорение сделок", "Снижение зависимости от юристов", "Бонус"],
+                    hypothesisRisks: ["Разнородность аудитории", "Разный уровень знаний"],
+                    whatToValidate: ["Реальный уровень знаний", "Типичные сценарии", "Готовность руководителей"],
+                    questionsForHR: ["Какие KPI улучшатся?", "Примеры успешных/неуспешных кейсов?"],
+                    designImplications: "Микрообучение, короткие видео, тренажёры на кейсах."
                 }
             },
             {
                 id: "diagnost", slug: "diagnost", name: "Нейрометод.Диагност AI",
                 stage: "Проверка гипотез эффективного обучения",
-                role: "Создаёт диагностическую анкету, чтобы быстро проверить, что именно мешает/может помешать сотрудникам выполнять рабочее действие правильно.",
+                role: "Создаёт диагностическую анкету для проверки гипотез о проблемах аудитории.",
                 inputTitle: "Какую гипотезу об аудитории нужно проверить?",
-                inputPlaceholder: "Например: есть гипотеза, что сотрудники знают регламент, но не применяют его в сложных клиентских ситуациях...",
+                inputPlaceholder: "Например: есть гипотеза, что сотрудники знают регламент, но не применяют его...",
                 buttonLabel: "Собрать анкету",
                 loaderText: "Формирую диагностическую анкету...",
                 maxLength: 4000,
-                systemPrompt: `Ты — диагност в обучении. Составь короткую анкету для проверки гипотезы об аудитории. Определи цель диагностики, гипотезы, список вопросов (открытые и шкалы), рекомендации по запуску. Ответ JSON: diagnosticGoal, hypotheses (массив), surveyQuestions (массив объектов с question и type), launchRecommendation.`,
+                systemPrompt: `Ты — диагност в обучении. Составь короткую анкету для проверки гипотезы. Ответ JSON: diagnosticGoal, hypotheses (массив), surveyQuestions (массив объектов с question и type), launchRecommendation.`,
                 demoResult: {
-                    diagnosticGoal: "Понять, почему продавцы постоянно обращаются к юристам: нехватка знаний, страх ошибки или отсутствие инструментов.",
-                    hypotheses: ["Знают базовые вещи, но боятся ответственности", "Не понимают границ самостоятельности", "Шаблоны неудобны или отсутствуют"],
+                    diagnosticGoal: "Понять, почему продавцы обращаются к юристам: нехватка знаний, страх ошибки или отсутствие инструментов.",
+                    hypotheses: ["Знают базу, но боятся ответственности", "Не понимают границ", "Шаблоны неудобны"],
                     surveyQuestions: [
-                        { question: "Опишите последнюю ситуацию, когда вы обратились к юристу вместо самостоятельного решения.", type: "open" },
-                        { question: "Насколько вы уверены в своих знаниях о договорах? (1-5)", type: "scale" },
-                        { question: "Что бы помогло вам реже обращаться к юристам?", type: "open" }
+                        { question: "Опишите последнюю ситуацию, когда обратились к юристу.", type: "open" },
+                        { question: "Насколько уверены в своих знаниях о договорах? (1-5)", type: "scale" },
+                        { question: "Что бы помогло реже обращаться к юристам?", type: "open" }
                     ],
-                    launchRecommendation: "Анонимный опрос, объяснить цель — улучшение процессов, а не оценка."
+                    launchRecommendation: "Анонимный опрос, объяснить цель — улучшение процессов."
                 }
             },
             {
                 id: "smyslovik", slug: "smyslovik", name: "Нейрометод.Смысловик AI",
                 stage: "Работа с экспертом",
-                role: "Помогает распаковать экспертные материалы: интервью, регламенты, инструкции, транскрибации и рабочие заметки. Можно загрузить файл.",
+                role: "Распаковывает экспертные материалы, выделяя темы, алгоритмы, чек-листы. Можно загрузить файл.",
                 inputTitle: "Вставьте сырой материал или загрузите файл",
-                inputPlaceholder: "Вставьте интервью, транскрибацию, регламент, экспертный комментарий или другой сырой материал...",
+                inputPlaceholder: "Вставьте интервью, транскрибацию, регламент...",
                 buttonLabel: "Вытащить смысловую структуру",
                 loaderText: "Разбираю материал и выделяю структуру опыта...",
                 maxLength: 15000,
                 supportFile: true,
                 systemPrompt: `Ты — методист-аналитик. Извлеки из предоставленного текста (или файла) ключевые темы, алгоритмы, чек-листы, экспертные правила, термины, возможные учебные блоки и что требует проверки экспертом. Ответ JSON: materialSummary, keyTopics (массив), algorithms (массив объектов), checklists (массив строк), expertRules (массив строк), terms (массив), possibleLearningBlocks (массив), needsExpertValidation.`,
                 demoResult: {
-                    materialSummary: "Интервью с юристом о типовых ошибках продавцов при работе с договорами.",
-                    keyTopics: ["Типовые ошибки", "Зоны ответственности", "Алгоритм проверки договора"],
-                    algorithms: [{ name: "Проверка договора", steps: ["Реквизиты", "Сумма и условия оплаты", "Сроки", "Скрытые условия", "Согласование с юристом при отклонении"] }],
-                    checklists: ["Чек-лист проверки договора", "Чек-лист для нестандартных условий"],
-                    expertRules: ["Изменения в шаблонных пунктах — только через юриста", "Суммы > 1 млн — обязательное согласование"],
-                    terms: ["Форс-мажор", "Неустойка", "Пролонгация"],
+                    materialSummary: "Интервью с юристом о типовых ошибках продавцов.",
+                    keyTopics: ["Типовые ошибки", "Зоны ответственности", "Алгоритм проверки"],
+                    algorithms: [{ name: "Проверка договора", steps: ["Реквизиты", "Сумма", "Сроки", "Скрытые условия", "Согласование"] }],
+                    checklists: ["Чек-лист проверки договора", "Чек-лист нестандартных условий"],
+                    expertRules: ["Изменения шаблонов — через юриста", "Суммы >1 млн — согласование"],
+                    terms: ["Форс-мажор", "Неустойка"],
                     possibleLearningBlocks: ["Типовые ошибки", "Алгоритм проверки", "Зоны ответственности"],
-                    needsExpertValidation: "Сверить алгоритмы и правила с актуальными регламентами."
+                    needsExpertValidation: "Сверить алгоритмы с актуальными регламентами."
                 }
             },
             {
                 id: "logic", slug: "logic", name: "Нейрометод.Логик AI",
                 stage: "Структура курса",
-                role: "Проверяет логику курса: связаны ли цель, результаты обучения, модули, задания, критерии оценки и маршрут участника.",
+                role: "Проверяет логику курса: связь цели, результатов, заданий, критериев и маршрута.",
                 inputTitle: "Вставьте структуру курса / программу / описание модуля",
-                inputPlaceholder: "Вставьте цель курса, модули, результаты обучения, задания, критерии оценки...",
+                inputPlaceholder: "Вставьте цель курса, модули, результаты обучения, задания, критерии...",
                 buttonLabel: "Проверить логику курса",
                 loaderText: "Проверяю связку цель → результат → задание → критерии → маршрут...",
                 maxLength: 10000,
-                systemPrompt: `Ты — методический аудитор. Проверь логику курса: оцени связность цели, результатов обучения, заданий, критериев и маршрута. Выдай светофор (зеленый/желтый/красный) с комментариями по каждому аспекту, методические разрывы, рекомендации и приоритет правок. Ответ JSON: overallAssessment, trafficLight, goalCheck (объект), learningOutcomesCheck, assignmentsCheck, criteriaCheck, routeCheck, methodicalGaps (массив), recommendations (массив), priorityFixes (массив).`,
+                systemPrompt: `Ты — методический аудитор. Проверь логику курса, выдай светофор с комментариями. Ответ JSON: overallAssessment, trafficLight, goalCheck, learningOutcomesCheck, assignmentsCheck, criteriaCheck, routeCheck, methodicalGaps (массив), recommendations (массив), priorityFixes (массив).`,
                 demoResult: {
                     overallAssessment: "Структура в целом логична, но есть разрывы.",
                     trafficLight: "yellow",
-                    goalCheck: { status: "green", comment: "Цель сформулирована чётко." },
+                    goalCheck: { status: "green", comment: "Цель чёткая." },
                     learningOutcomesCheck: { status: "yellow", comment: "Не все результаты измеримы." },
                     assignmentsCheck: { status: "yellow", comment: "Задания не полностью соответствуют результатам." },
                     criteriaCheck: { status: "red", comment: "Критерии отсутствуют для двух модулей." },
                     routeCheck: { status: "green", comment: "Маршрут последователен." },
-                    methodicalGaps: ["Отсутствуют критерии для модулей 2 и 3", "Задание 1 не проверяет заявленный результат"],
-                    recommendations: ["Разработать критерии для всех модулей", "Связать задания с результатами"],
-                    priorityFixes: ["1. Критерии оценки", "2. Актуализация заданий"]
+                    methodicalGaps: ["Отсутствуют критерии для модулей 2 и 3", "Задание 1 не проверяет результат"],
+                    recommendations: ["Разработать критерии", "Связать задания с результатами"],
+                    priorityFixes: ["1. Критерии", "2. Актуализация заданий"]
                 }
             },
             {
                 id: "practice", slug: "practice", name: "Нейрометод.Практик AI",
                 stage: "Практические задания",
-                role: "Помогает превратить тему или теорию в рабочее задание, кейс, симуляцию или практику с понятными критериями оценки.",
+                role: "Превращает тему в рабочее задание, кейс или симуляцию с критериями оценки.",
                 inputTitle: "Вставьте тему, теорию или учебный результат",
-                inputPlaceholder: "Например: участник должен научиться проверять договор перед отправкой клиенту и понимать, какие изменения можно вносить самостоятельно.",
+                inputPlaceholder: "Например: участник должен научиться проверять договор перед отправкой клиенту...",
                 buttonLabel: "Собрать практику",
                 loaderText: "Проектирую практическое задание...",
                 maxLength: 7000,
-                systemPrompt: `Ты — дизайнер учебных заданий. Создай 5 практических заданий на основе темы. Для каждого: рабочая ситуация, задание, входные данные, критерии оценки, типичные ошибки, логика обратной связи. Ответ JSON: tasks (массив объектов с полями: workSituation, task, inputData (массив), criteria (массив), typicalMistakes (массив), feedbackLogic).`,
+                systemPrompt: `Ты — дизайнер учебных заданий. Создай 5 практических заданий на основе темы. Для каждого: рабочая ситуация, задание, входные данные, критерии, типичные ошибки, логика обратной связи. Ответ JSON: tasks (массив объектов).`,
                 demoResult: {
                     tasks: [
                         {
-                            workSituation: "Клиент просит изменить срок поставки в договоре.",
+                            workSituation: "Клиент просит изменить срок поставки.",
                             task: "Проверьте договор по чек-листу и решите, можно ли согласовать изменение самостоятельно.",
-                            inputData: ["Типовой договор", "Чек-лист проверки", "Политика согласования"],
-                            criteria: ["Правильно применён чек-лист", "Верно определена зона ответственности", "Обосновано решение"],
+                            inputData: ["Типовой договор", "Чек-лист", "Политика согласования"],
+                            criteria: ["Правильно применён чек-лист", "Верно определена зона ответственности"],
                             typicalMistakes: ["Пропуск пункта о сроках", "Игнорирование условий оплаты"],
-                            feedbackLogic: "При ошибке подсвечивается соответствующий пункт чек-листа."
+                            feedbackLogic: "Подсветка соответствующего пункта чек-листа."
                         }
                     ]
                 }
             }
         ];
 
-        // Остальной код (глобальное распознавание, отрисовка, API-запросы и т.д.) остаётся без изменений.
+        const OPENAI_API_KEY = 'key_3iIG2T4FoB6ZOeVV';
+
+        const originalFetch = window.fetch ? window.fetch.bind(window) : null;
+        window.fetch = async function(url, options = {}) {
+            const target = String(url);
+            if (target === '/api/tools') {
+                return new Response(JSON.stringify(window.__TOOLS__), { status: 200, headers: { 'Content-Type': 'application/json' } });
+            }
+            if (target.includes('/api/tools/') && target.endsWith('/run')) {
+                const slug = target.split('/api/tools/')[1].split('/')[0];
+                const tool = (window.__TOOLS__ || []).find(t => t.slug === slug);
+                return new Response(JSON.stringify({
+                    toolRunId: 'local_preview',
+                    result: tool?.demoResult || { summary: 'Пример результата' }
+                }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+            }
+            if (target === '/api/leads' || target === '/api/feedback') {
+                return new Response(JSON.stringify({ id: 'local_preview', message: 'Заявка принята (демо).' }), { status: 201 });
+            }
+            if (originalFetch) return originalFetch(url, options);
+            throw new Error('Fetch is unavailable in this browser');
+        };
     </script>
 
     <script>
         const app = document.querySelector("#app");
         const state = { tools: [], currentResult: null, currentRunId: null };
 
-        // Web Speech API глобальный
         let globalRecognition = null;
         let currentTargetTextarea = null;
         let isRecording = false;
@@ -627,17 +652,16 @@
         initGlobalSpeech();
 
         const outputHints = {
-            brief: { input: "Описание запроса заказчика, встреча, письмо, заметки или фрагмент переписки.", output: "Структурированный бриф, список недостающих данных и вопросы заказчику." },
-            profile: { input: "Описание аудитории, должности, задач, ситуации обучения или вводные от HR/руководителя.", output: "Профиль аудитории и выводы для проектирования курса." },
-            diagnost: { input: "Гипотеза о проблеме аудитории или описание типичных ошибок.", output: "Анкета, диагностические вопросы и логика интерпретации ответов." },
-            smyslovik: { input: "Сырой текст, интервью, регламент, экспертный комментарий или расшифровка встречи.", output: "Ключевые темы, алгоритмы, чек-листы, экспертные правила и возможные учебные блоки." },
-            logic: { input: "Структура курса, программа, описание модулей, результаты обучения или план занятий.", output: "Светофор логики курса, методические разрывы, рекомендации и приоритет правок." },
-            practice: { input: "Тема, теория, учебный результат, навык или рабочая ситуация.", output: "Практическое задание, входные данные, критерии оценки, типичные ошибки и задачи “со звездочкой”." }
+            brief: { input: "Описание запроса заказчика.", output: "Структурированный бриф, вопросы, риски." },
+            profile: { input: "Описание аудитории и темы.", output: "Профиль аудитории, выводы для проектирования." },
+            diagnost: { input: "Гипотеза о проблеме аудитории.", output: "Диагностическая анкета." },
+            smyslovik: { input: "Сырой материал или файл.", output: "Темы, алгоритмы, чек-листы." },
+            logic: { input: "Структура курса или программы.", output: "Светофор логики, разрывы, приоритет правок." },
+            practice: { input: "Тема, теория, учебный результат.", output: "Практические задания, критерии, ошибки." }
         };
 
         const statusLabels = { green: "работает", yellow: "требует уточнения", red: "разрыв", neutral: "информация" };
 
-        // Модальное окно пароля
         function showPasswordModal() {
             return new Promise(resolve => {
                 const modal = document.getElementById('password-modal');
@@ -682,7 +706,7 @@
                             <p class="hero-eyebrow">КОМПЛЕКС ИНСТРУМЕНТОВ ДЛЯ БЫСТРОЙ РАЗРАБОТКИ КУРСОВ</p>
                             <h1>НЕЙРОМЕТОД AI</h1>
                             <p class="hero-subtitle">Спроектируйте курс за 20 минут даже при минимальных данных о проекте!</p>
-                            <p class="hero-copy">Загрузите информацию по проекту и получите методологический каркас, готовый для разработки.</p>
+                            <p class="hero-copy">Как это работает: Запустите любой инструмент по своей реальной задаче. Получите результат за 2 минуты.</p>
                             <p class="hero-copy" style="font-size:16px; margin-top:8px;">Для методологов, HR-специалистов, экспертов и команд разработки обучения</p>
                             <div class="hero-actions">
                                 <a class="button primary" href="#tools">Попробовать инструмент</a>
@@ -708,7 +732,7 @@
 
                 <section class="section" id="tools">
                     <div class="section-inner">
-                        <div class="section-head"><div><h2>Проектирование обучения по этапам</h2><p>Каждая карточка ведёт в отдельный рабочий экран с формой, запуском AI и структурированными блоками результата.</p></div></div>
+                        <div class="section-head"><div><h2>Проектирование обучения по этапам</h2><p>БЕСПЛАТНЫЙ ДОСТУП к инструментам до 15 июня. Попробуйте решить быстро самые горящие задачи!</p></div></div>
                         <div class="tools-grid">${state.tools.map(renderToolCard).join("")}</div>
                     </div>
                 </section>
@@ -718,10 +742,10 @@
                         <h2>Нейрометод AI — ваш практический инструмент</h2>
                         <p style="color: var(--muted); margin-bottom: 28px;">Нейрометод AI создан командой разработки Института непрерывного образования и используется в реальной работе над образовательными продуктами.</p>
                         <div class="feature-grid">
-                            <div class="feature-card"><h3>Основан на методике проектирования обучения</h3><p>Инструменты не просто генерируют текст, а ведут пользователя по логике разработки курса: от запроса и аудитории до структуры, практики и критериев оценки.</p></div>
-                            <div class="feature-card"><h3>Помогает работать с разрозненными вводными</h3><p>Можно вставить заметки после встречи, фрагмент интервью, описание проблемы, структуру курса или экспертный материал — инструмент поможет привести данные к рабочему формату.</p></div>
-                            <div class="feature-card"><h3>Показывает методические разрывы</h3><p>Инструмент помогает увидеть, где цель курса не связана с заданиями, где не хватает критериев оценки или где маршрут обучения требует уточнения.</p></div>
-                            <div class="feature-card"><h3>Ускоряет разработку курса</h3><p>Вы быстрее получаете основу для методической работы: бриф, профиль аудитории, структуру, задания, критерии и список вопросов для уточнения.</p></div>
+                            <div class="feature-card"><h3>Основан на методике проектирования обучения</h3><p>Инструменты не просто генерируют текст, а ведут пользователя по логике разработки курса.</p></div>
+                            <div class="feature-card"><h3>Помогает работать с разрозненными вводными</h3><p>Можно вставить заметки, интервью, описание проблемы — инструмент приведёт данные к рабочему формату.</p></div>
+                            <div class="feature-card"><h3>Показывает методические разрывы</h3><p>Инструмент помогает увидеть, где цель не связана с заданиями или не хватает критериев.</p></div>
+                            <div class="feature-card"><h3>Ускоряет разработку курса</h3><p>Вы быстрее получаете основу для методической работы.</p></div>
                         </div>
                     </div>
                 </section>
@@ -729,7 +753,7 @@
                 <section class="section" id="expertise">
                     <div class="section-inner">
                         <h2>Мы используем эти инструменты в собственной разработке</h2>
-                        <p style="color: var(--muted); max-width: 800px;">Нейрометод AI разработан командой Института непрерывного образования. Мы работаем на рынке дополнительного образования более 10 лет и проектируем свои курсы. За последние два года AI-инструменты стали частью нашей основной методической работы. С их помощью мы проектируем, дорабатываем и проверяем образовательные продукты: от коротких практикумов до комплексных программ обучения.</p>
+                        <p style="color: var(--muted); max-width: 800px;">Нейрометод AI - это не теоретическая модель, а основа нашей ежедневной методической работы. Мы создаем, дорабатываем и тестируем с его помощью все типы образовательных продуктов: от коротких практических интенсивов до масштабных комплексных программ. Наш собственный опыт подтверждает надежность инструмента.</p>
                         <p style="font-weight: 700; margin-bottom: 28px;">Более 50 курсов были созданы или доработаны с использованием Нейрометод AI</p>
                         <div class="stats-grid">
                             <div class="stat-item"><div class="stat-number">10+ лет</div><div class="stat-label">на рынке дополнительного образования</div></div>
@@ -746,8 +770,8 @@
                             <div class="comparison-header">Без Нейрометод AI</div><div class="comparison-header">С использованием Нейрометод AI</div>
                             <div class="comparison-cell before">Заказчик даёт разрозненные вводные без готового ТЗ</div><div class="comparison-cell after">Вы получаете структурированный проектный бриф</div>
                             <div class="comparison-cell before">Не понятно, что именно должна уметь аудитория после обучения</div><div class="comparison-cell after">Формулируется учебная задача и ожидаемое рабочее действие</div>
-                            <div class="comparison-cell before">Есть общее описание аудитории, но нет понимания её барьеров</div><div class="comparison-cell after">Собирается профиль аудитории: боли, мотивация, ограничения, уровень подготовки</div>
-                            <div class="comparison-cell before">Эксперт даёт много материала без структуры</div><div class="comparison-cell after">Из материала выделяются темы, алгоритмы, чек-листы и правила</div>
+                            <div class="comparison-cell before">Есть общее описание аудитории, но нет понимания её барьеров</div><div class="comparison-cell after">Собирается профиль аудитории: боли, мотивация, ограничения</div>
+                            <div class="comparison-cell before">Эксперт даёт много материала без структуры</div><div class="comparison-cell after">Из материала выделяются темы, алгоритмы, чек-листы</div>
                             <div class="comparison-cell before">Есть программа курса, но неясно, насколько она логична</div><div class="comparison-cell after">Инструмент проверяет связку цель → результат → задания → критерии</div>
                             <div class="comparison-cell before">Теория есть, а практики и оценки не хватает</div><div class="comparison-cell after">Формируется основа практических заданий и критериев оценки</div>
                         </div>
@@ -768,7 +792,7 @@
                                 <p class="eyebrow">ОБУЧЕНИЕ</p>
                                 <h3 style="font-size:24px;margin:0 0 16px;">Хотите не просто пользоваться готовыми AI-инструментами, а встроить нейросети в свою разработку обучения?</h3>
                                 <p style="margin:0 0 12px;"><strong>НЕЙРООПЕРАЦИЯ.МЕТОД</strong> — практикум для методологов, HR-специалистов, педагогических дизайнеров, экспертов и команд разработки курсов.</p>
-                                <p style="margin:0;">Это — практическая работа с вашими реальными методическими процессами: вы разберёте, как нейросети могут реально ускорить разработку обучения, какие задачи стоит передавать нейронкам и как собрать собственную систему помощников под вашу работу.</p>
+                                <p style="margin:0;">Это — практическая работа с вашими реальными методическими процессами: вы разберёте, как нейросети могут реально ускорить разработку обучения.</p>
                             </div>
                             <div class="course-right">
                                 <h3>Практикум «Нейрооперация.Метод»</h3>
@@ -793,10 +817,10 @@
                     <span class="stage">${escapeHtml(tool.stage)}</span>
                     <div><h3>${escapeHtml(tool.name)}</h3><p>${escapeHtml(tool.role)}</p></div>
                     <dl class="meta-list" style="margin-top: 4px;">
-                        <div><dt>Что на входе</dt><dd>${escapeHtml(hints.input || tool.inputLabel)}</dd></div>
-                        <div style="margin-top: 6px;"><dt>Что на выходе</dt><dd>${escapeHtml(hints.output || "Структурированный методический результат")}</dd></div>
+                        <div><dt>Что на входе</dt><dd>${escapeHtml(hints.input)}</dd></div>
+                        <div style="margin-top: 6px;"><dt>Что на выходе</dt><dd>${escapeHtml(hints.output)}</dd></div>
                     </dl>
-                    <a class="button primary" href="#tool/${tool.slug}">Открыть инструмент</a>
+                    <a class="button primary" href="#tool/${tool.slug}">ЗАПУСТИТЬ</a>
                 </article>
             `;
         }
@@ -824,36 +848,35 @@
                         <div class="field"><label for="mainText">Введите запрос</label><div class="main-input-wrapper"><textarea class="main-input" id="mainText" name="mainText" maxlength="${tool.maxLength}" placeholder="${escapeHtml(tool.inputPlaceholder || '')}" required></textarea><button class="mic-button" type="button" aria-label="Голосовой ввод" title="Надиктовать вводные"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" fill="currentColor"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" fill="currentColor"/></svg></button></div><span class="char-counter" id="char-counter">0 / ${tool.maxLength}</span></div>
                         <button class="button primary" type="submit">${escapeHtml(tool.buttonLabel)}</button><div id="form-message" aria-live="polite"></div>
                     </form></aside>
-                    <section class="result-panel" aria-live="polite"><div id="result-root" class="empty-result"><div><h2>Результат появится здесь</h2><p>После запуска вы получите структурированный ответ по вашему запросу.</p></div></div></section>
+                    <section class="result-panel" aria-live="polite">
+                        <div id="result-root" class="empty-result"><div><h2>Результат появится здесь</h2><p>После запуска вы получите структурированный ответ по вашему запросу.</p></div></div>
+                        <div class="tool-upsell">
+                            <p>Это был один инструмент из шести. На интенсиве Нейрооперация.МЕТОД вы построите свою систему нейро-инструментов</p>
+                            <a class="button primary" href="https://neiroekspert.ru/noometod" target="_blank">Узнать про Нейрооперацию →</a>
+                        </div>
+                    </section>
                 </div></div></section>
                 ${renderLeadSection(tool.name)}
             `;
             const newMicButton = document.querySelector(".mic-button");
             const newTextarea = document.getElementById("mainText");
             if (newMicButton && newTextarea) attachMicToButton(newMicButton, newTextarea);
-            // Обработчик файла
             const fileInput = document.getElementById('fileInput');
             const fileNameSpan = document.getElementById('fileName');
             if (fileInput) {
                 fileInput.addEventListener('change', () => {
-                    if (fileInput.files.length > 0) {
-                        fileNameSpan.textContent = fileInput.files[0].name;
-                    } else {
-                        fileNameSpan.textContent = '';
-                    }
+                    fileNameSpan.textContent = fileInput.files.length > 0 ? fileInput.files[0].name : '';
                 });
             }
             bindToolForm(tool);
             initWidget();
         }
 
-        // Функция для извлечения текста из файла
         async function extractFileContent(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = async function(e) {
                     if (file.type === 'application/pdf') {
-                        // Используем pdf.js
                         try {
                             const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(e.target.result) }).promise;
                             let text = '';
@@ -884,16 +907,8 @@
             ];
             const response = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${OPENAI_API_KEY}`
-                },
-                body: JSON.stringify({
-                    model: "gpt-4o",
-                    messages: messages,
-                    temperature: 0.2,
-                    response_format: { type: "json_object" }
-                })
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
+                body: JSON.stringify({ model: "gpt-4o", messages, temperature: 0.2, response_format: { type: "json_object" } })
             });
             if (!response.ok) {
                 const err = await response.json();
@@ -910,29 +925,20 @@
             const mainText = document.querySelector("#mainText");
             const counter = document.querySelector("#char-counter");
             mainText.addEventListener("input", () => counter.textContent = `${mainText.value.length} / ${tool.maxLength}`);
-
             form.addEventListener("submit", async (e) => {
                 e.preventDefault(); message.innerHTML = "";
                 const input = Object.fromEntries(new FormData(form).entries());
                 const text = (input.mainText || "").trim();
                 if (!text) { message.innerHTML = '<div class="message error">Добавьте вводные данные для анализа</div>'; return; }
                 if (text.length > tool.maxLength) { message.innerHTML = '<div class="message error">Текст слишком длинный. Сократите материал или разбейте его на части.</div>'; return; }
-
-                // Проверка файла
                 let fileContent = '';
                 const fileInput = document.getElementById('fileInput');
                 if (fileInput && fileInput.files.length > 0) {
-                    try {
-                        fileContent = await extractFileContent(fileInput.files[0]);
-                    } catch (err) {
-                        message.innerHTML = '<div class="message error">Не удалось прочитать файл. Проверьте формат.</div>';
-                        return;
-                    }
+                    try { fileContent = await extractFileContent(fileInput.files[0]); }
+                    catch (err) { message.innerHTML = '<div class="message error">Не удалось прочитать файл.</div>'; return; }
                 }
-
                 const passwordCorrect = await showPasswordModal();
                 if (!passwordCorrect) return;
-
                 const btn = form.querySelector("button[type='submit']"); btn.disabled = true;
                 resultRoot.className = "loader"; resultRoot.innerHTML = `<div><span></span><p>${escapeHtml(tool.loaderText)}</p></div>`;
                 try {
@@ -946,7 +952,6 @@
             });
         }
 
-        // Остальные функции (renderResult, renderLeadSection, ...) идентичны предыдущей версии
         function renderResult(tool, result, toolRunId) {
             const root = document.querySelector("#result-root");
             const entries = Object.entries(result || {});
@@ -955,7 +960,7 @@
                 <div class="result-actions"><div><h2>Результат</h2><p>Структурированный ответ инструмента.</p></div><button class="button secondary" id="copy-result">Скопировать результат</button></div>
                 <div class="result-grid">${entries.map(([k,v])=>renderResultCard(tool,k,v)).join("")}</div>
                 <div class="cta-strip"><strong>Хотите адаптировать инструмент под вашу команду?</strong><a class="button primary" href="#lead">Обсудить внедрение в команду</a></div>
-                <div class="feedback"><span>Оцените результат:</span>${[1,2,3,4,5].map(r=>`<button type="button" data-rating="${r}" aria-label="Оценка ${r}">${r}</button>`).join("")}<span id="feedback-message"></span></div>
+                <div class="feedback"><span>Оцените результат:</span>${[1,2,3,4,5].map(r=>`<button type="button" data-rating="${r}">${r}</button>`).join("")}<span id="feedback-message"></span></div>
             `;
             document.querySelector("#copy-result").addEventListener("click", async ()=>{
                 await navigator.clipboard.writeText(formatResultForCopy(tool, result));
@@ -1032,10 +1037,9 @@
                     iframe.className = '846';
                     iframe.id = 'f1a64444855692d2254787027d9365f043d25269_846';
                     iframe.name = '846';
-                    var iframeId = iframe.id;
                     var onMessage = function(e) {
                         if (e.data.uniqName == '26df6b6bd0dd56a5902dd1bcd7aa228f23635447' && e.data.height) {
-                            var el = document.getElementById(iframeId);
+                            var el = document.getElementById('f1a64444855692d2254787027d9365f043d25269_846');
                             if (el) { par.style.height = e.data.height + 'px'; el.style.height = e.data.height + 'px'; }
                         }
                     };
