@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
+        /* ... весь ваш CSS без изменений ... */
         :root {
             --bg: #f7f5ef;
             --surface: #ffffff;
@@ -138,7 +139,6 @@
         .button.ghost { color: var(--accent); background: transparent; border-color: var(--accent); }
         .button.ghost:hover { background: rgba(58, 175, 66, 0.08); }
 
-        /* Новая фиолетовая кнопка */
         .button.purple {
             background: var(--purple);
             color: #fff;
@@ -555,7 +555,6 @@
         ];
 
         // OpenAI ключи
-        const OPENAI_TRACKING_ID = 'key_1lJ17iBUV0v9MEPr';
         const OPENAI_SECRET_KEY = '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';
     </script>
 
@@ -873,19 +872,23 @@
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userText + (fileContent ? '\n\nСодержимое файла:\n' + fileContent : '') }
             ];
-            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+
+            // Используем публичный CORS-прокси для обхода ограничений GitHub Pages
+            const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://api.openai.com/v1/chat/completions');
+            const response = await fetch(proxyUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${OPENAI_SECRET_KEY}`
                 },
                 body: JSON.stringify({
-                    model: "gpt-4o",
+                    model: "gpt-4o-mini",   // более дешёвая и доступная модель
                     messages: messages,
                     temperature: 0.2,
                     response_format: { type: "json_object" }
                 })
             });
+
             if (!response.ok) {
                 const err = await response.json().catch(() => ({}));
                 throw new Error(err.error?.message || `Ошибка API: ${response.status}`);
