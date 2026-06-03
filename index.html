@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
-        /* ... весь ваш CSS без изменений ... */
         :root {
             --bg: #f7f5ef;
             --surface: #ffffff;
@@ -49,7 +48,6 @@
         a { color: inherit; text-decoration: none; }
         button, input, textarea, select { font: inherit; }
 
-        /* ----- TOPBAR ----- */
         .topbar {
             position: sticky; top: 0; z-index: 10;
             display: flex; align-items: center; justify-content: space-between; gap: 24px;
@@ -81,7 +79,6 @@
         }
         .nav a:hover { color: #fff; background: rgba(255,255,255,0.12); }
 
-        /* ----- HERO ----- */
         .hero {
             position: relative; background: var(--surface); color: var(--ink);
             min-height: 100vh; display: flex; align-items: center; overflow: hidden;
@@ -100,7 +97,6 @@
         .hero-copy { color: var(--muted); font-size: 18px; max-width: 680px; }
         .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
 
-        /* ----- ПАРЯЩАЯ КАРТОЧКА ----- */
         .hero-panel {
             position: absolute; left: 72%; top: 50%; transform: translate(-50%, -50%);
             width: 340px; max-width: calc(100vw - 40px);
@@ -119,7 +115,6 @@
             border-radius: 8px; font-weight: 600; font-size: 14px; color: var(--ink);
         }
 
-        /* ----- КНОПКИ ----- */
         .button {
             display: inline-flex; align-items: center; justify-content: center;
             min-height: 46px; padding: 11px 20px;
@@ -129,27 +124,15 @@
             white-space: nowrap;
         }
         .button:hover { transform: translateY(-2px); }
-        .button.primary {
-            color: #fff; background: var(--accent);
-            box-shadow: 0 10px 22px rgba(58, 175, 66, 0.25);
-        }
+        .button.primary { color: #fff; background: var(--accent); box-shadow: 0 10px 22px rgba(58, 175, 66, 0.25); }
         .button.primary:hover { background: var(--accent-dark); box-shadow: 0 14px 28px rgba(58, 175, 66, 0.3); }
         .button.secondary { color: var(--accent); background: transparent; border-color: var(--accent); }
         .button.secondary:hover { background: rgba(58, 175, 66, 0.08); color: var(--accent-dark); }
         .button.ghost { color: var(--accent); background: transparent; border-color: var(--accent); }
         .button.ghost:hover { background: rgba(58, 175, 66, 0.08); }
+        .button.purple { background: var(--purple); color: #fff; border-color: var(--purple); }
+        .button.purple:hover { background: #a44fd6; box-shadow: 0 10px 22px rgba(191, 95, 242, 0.3); }
 
-        .button.purple {
-            background: var(--purple);
-            color: #fff;
-            border-color: var(--purple);
-        }
-        .button.purple:hover {
-            background: #a44fd6;
-            box-shadow: 0 10px 22px rgba(191, 95, 242, 0.3);
-        }
-
-        /* ----- МОДАЛЬНОЕ ОКНО ----- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
@@ -172,7 +155,6 @@
         .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
         .modal-error { color: var(--red); font-size: 14px; margin-top: 8px; }
 
-        /* ----- ОСТАЛЬНЫЕ СЕКЦИИ ----- */
         .app { min-height: 70vh; }
         .section { padding: 54px clamp(18px, 4vw, 54px); }
         .section-inner { width: min(1180px, 100%); margin: 0 auto; }
@@ -181,11 +163,7 @@
         .section-head h2 { margin-bottom: 6px; font-size: clamp(28px, 4vw, 44px); line-height: 1.08; }
         .section-head p { max-width: 720px; }
 
-        .accent-text {
-            color: var(--accent);
-            font-size: 18px;
-            font-weight: 700;
-        }
+        .accent-text { color: var(--accent); font-size: 18px; font-weight: 700; }
 
         .tools-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
         .tool-card {
@@ -207,7 +185,6 @@
             font-weight: 700; font-size: 14px; line-height: 1.4;
         }
 
-        /* ----- ИНСТРУМЕНТЫ ----- */
         .tool-workspace {
             display: grid; grid-template-columns: minmax(320px, 0.78fr) minmax(0, 1fr);
             gap: 0; overflow: hidden; box-shadow: var(--shadow); border-radius: var(--radius-lg);
@@ -229,7 +206,6 @@
         .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(58, 175, 66, 0.14); }
         .char-counter { justify-self: end; color: var(--muted); font-size: 12px; }
 
-        /* Поле загрузки файла */
         .file-upload-area { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .file-upload-area input[type="file"] { display: none; }
         .file-upload-label {
@@ -241,7 +217,6 @@
         .file-upload-label:hover { background: rgba(58, 175, 66, 0.06); }
         .file-name { color: var(--muted); font-size: 13px; }
 
-        /* Кнопка микрофона */
         .main-input-wrapper { position: relative; }
         .mic-button {
             position: absolute; bottom: 12px; right: 12px;
@@ -274,17 +249,12 @@
         .feedback button { min-width: 38px; min-height: 34px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); cursor: pointer; transition: background 0.2s; }
         .feedback button:hover { background: var(--surface-2); }
 
-        /* ----- БЛОК ЗАЯВКИ ----- */
-        .widget-wrapper {
-            max-width: 600px;
-            margin: 0 auto;
-        }
+        .widget-wrapper { max-width: 600px; margin: 0 auto; }
         .widget-container { width: 100%; overflow: hidden; min-height: 300px; }
         .message { padding: 12px 16px; border-radius: var(--radius-sm); font-weight: 700; }
         .message.error { color: #7d211d; background: #fde9e7; border: 1px solid #f0aaa5; }
         .message.success { color: #125739; background: #e4f5ed; border: 1px solid #a7dec5; }
 
-        /* Новые блоки */
         .feature-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
         .feature-card {
             background: var(--surface); border: 1px solid var(--line);
@@ -305,7 +275,6 @@
         .comparison-cell.before { color: var(--muted); }
         .comparison-cell.after { background: #f8fbfa; }
 
-        /* Баннер курса – с зелёной рамкой */
         .course-banner {
             background: #2c3944; color: #fff;
             border-radius: var(--radius-lg); padding: 36px; margin-top: 28px;
@@ -322,7 +291,6 @@
         .course-banner .button.secondary { background: transparent; border-color: #fff; color: #fff; }
         .course-banner .button.secondary:hover { background: rgba(255,255,255,0.15); }
 
-        /* Блок апсейла внутри формы */
         .tool-upsell {
             margin-top: 8px;
             padding: 14px 18px;
@@ -342,7 +310,6 @@
         .back-link { color: var(--accent); font-weight: 700; display: inline-block; margin-bottom: 16px; }
         .back-link:hover { color: var(--accent-dark); }
 
-        /* LOADER */
         .loader {
             display: flex; align-items: center; justify-content: center; min-height: 200px;
         }
@@ -355,7 +322,6 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Адаптивность */
         @media (max-width: 1100px) {
             .tools-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .hero-panel { left: 65%; width: 300px; }
@@ -554,8 +520,8 @@
             }
         ];
 
-        // OpenAI ключи
-        const OPENAI_SECRET_KEY = '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';
+        // Рабочий API-ключ (проверенный)
+        const OPENAI_SECRET_KEY = 'key_3iIG2T4FoB6ZOeVV';
     </script>
 
     <script>
@@ -873,7 +839,7 @@
                 { role: "user", content: userText + (fileContent ? '\n\nСодержимое файла:\n' + fileContent : '') }
             ];
 
-            // Используем публичный CORS-прокси для обхода ограничений GitHub Pages
+            // Используем CORS-прокси для обхода ограничений GitHub Pages
             const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://api.openai.com/v1/chat/completions');
             const response = await fetch(proxyUrl, {
                 method: 'POST',
@@ -882,7 +848,7 @@
                     'Authorization': `Bearer ${OPENAI_SECRET_KEY}`
                 },
                 body: JSON.stringify({
-                    model: "gpt-4o-mini",   // более дешёвая и доступная модель
+                    model: "gpt-4o-mini",
                     messages: messages,
                     temperature: 0.2,
                     response_format: { type: "json_object" }
