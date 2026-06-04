@@ -553,7 +553,7 @@
             }
         ];
 
-        // Новый рабочий ключ OpenAI
+        // Рабочий Secret Key
         const OPENAI_SECRET_KEY = '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';
     </script>
 
@@ -872,44 +872,31 @@
                 { role: "user", content: userText + (fileContent ? '\n\nСодержимое файла:\n' + fileContent : '') }
             ];
 
-            const payload = {
-                model: "gpt-4o-mini",
-                messages: messages,
-                temperature: 0.2,
-                response_format: { type: "json_object" }
-            };
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${OPENAI_SECRET_KEY}`
+                },
+                body: JSON.stringify({
+                    model: "gpt-4o-mini",
+                    messages: messages,
+                    temperature: 0.2,
+                    response_format: { type: "json_object" }
+                })
+            });
 
-            const openaiUrl = 'https://api.openai.com/v1/chat/completions';
-            const proxyCandidates = [
-                `https://corsproxy.io/?${encodeURIComponent(openaiUrl)}`,
-                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(openaiUrl)}`,
-                `https://cors-anywhere.herokuapp.com/${openaiUrl}`
-            ];
-
-            let lastError = null;
-            for (const proxyUrl of proxyCandidates) {
-                try {
-                    const response = await fetch(proxyUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${OPENAI_SECRET_KEY}`
-                        },
-                        body: JSON.stringify(payload)
-                    });
-                    if (!response.ok) {
-                        const err = await response.json().catch(() => ({}));
-                        throw new Error(err.error?.message || `Ошибка API: ${response.status}`);
-                    }
-                    const data = await response.json();
-                    const content = data.choices[0].message.content;
-                    return JSON.parse(content);
-                } catch (e) {
-                    lastError = e;
-                    continue;
-                }
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({}));
+                throw new Error(err.error?.message || `Ошибка API: ${response.status}`);
             }
-            throw new Error(`Все прокси недоступны. Последняя ошибка: ${lastError.message}. Попробуйте позже или обратитесь в поддержку.`);
+            const data = await response.json();
+            const content = data.choices[0].message.content;
+            try {
+                return JSON.parse(content);
+            } catch (e) {
+                throw new Error('Не удалось разобрать ответ AI. Попробуйте ещё раз.');
+            }
         }
 
         function bindToolForm(tool) {
@@ -941,7 +928,11 @@
                     renderResult(tool, result, state.currentRunId);
                 } catch (err) {
                     resultRoot.className = "empty-result";
-                    resultRoot.innerHTML = `<div class="message error">${escapeHtml(err.message)}</div>`;
+                    let msg = err.message;
+                    if (msg === 'Failed to fetch' || msg.includes('Failed to fetch')) {
+                        msg = 'Не удалось подключиться к OpenAI. Пожалуйста, включите VPN и попробуйте снова.';
+                    }
+                    resultRoot.innerHTML = `<div class="message error">${escapeHtml(msg)}</div>`;
                 } finally { btn.disabled = false; }
             });
         }
