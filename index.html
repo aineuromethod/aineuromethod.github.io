@@ -440,7 +440,6 @@
                 buttonLabel: "Собрать бриф",
                 loaderText: "Разбираю запрос и собираю проектный бриф...",
                 maxLength: 5000,
-                // Файлы инструкций для брифа
                 instructionFiles: [
                     "Instructions/Бриф AI/kb_01_soft_briefing.md",
                     "Instructions/Бриф AI/kb_02_question_map.md",
@@ -471,6 +470,13 @@
                 buttonLabel: "Собрать профиль аудитории",
                 loaderText: "Строю гипотезу о целевой аудитории...",
                 maxLength: 4000,
+                instructionFiles: [
+                    "Instructions/Профиль AI/Исходная GPT/system_instruction_neymetod_profil_ai.md",
+                    "Instructions/Профиль AI/Исходная GPT/knowledge_base_methodology.md",
+                    "Instructions/Профиль AI/Исходная GPT/knowledge_base_rules.md",
+                    "Instructions/Профиль AI/Исходная GPT/knowledge_base_templates.md",
+                    "Instructions/Профиль AI/Главная Профиль.md"
+                ],
                 systemPrompt: `Ты — специалист по анализу аудитории. На основе описания составь профиль аудитории для курса: рабочий контекст, боли, барьеры, мотивационные факторы, риски гипотезы, что проверить, вопросы для HR/руководителя, выводы для проектирования. Ответ JSON с полями: audienceProfile, workContext, probablePains (массив), learningBarriers (массив), motivationFactors (массив), hypothesisRisks (массив), whatToValidate (массив), questionsForHR (массив), designImplications.`,
                 outputLabels: {
                     audienceProfile: "Портрет ЦА",
@@ -493,6 +499,11 @@
                 buttonLabel: "Собрать анкету",
                 loaderText: "Формирую диагностическую анкету...",
                 maxLength: 4000,
+                instructionFiles: [
+                    "Instructions/Диагност ИИ/Исходная для GPT/neirometod_diagnost_expert_pack.md",
+                    "Instructions/Диагност ИИ/02_KB_diagnost_templates.md",
+                    "Instructions/Диагност ИИ/Главная диагност.md"
+                ],
                 systemPrompt: `Ты — диагност в обучении. Составь короткую анкету для проверки гипотезы. Ответ JSON: diagnosticGoal, hypotheses (массив), surveyQuestions (массив объектов с question и type), launchRecommendation.`,
                 outputLabels: {
                     diagnosticGoal: "Цель диагностики",
@@ -511,6 +522,15 @@
                 loaderText: "Разбираю материал и выделяю структуру опыта...",
                 maxLength: 15000,
                 supportFile: true,
+                instructionFiles: [
+                    "Instructions/Смысловик/Исходная Смысловик GPT/KB_00_start_context_protocol.md",
+                    "Instructions/Смысловик/Исходная Смысловик GPT/KB_01_expert_process_map.md",
+                    "Instructions/Смысловик/Исходная Смысловик GPT/KB_02_knowledge_ontology.md",
+                    "Instructions/Смысловик/Исходная Смысловик GPT/KB_03_skill_structure.md",
+                    "Instructions/Смысловик/Исходная Смысловик GPT/KB_04_expert_questions.md",
+                    "Instructions/Смысловик/Исходная Смысловик GPT/KB_05_cases_and_errors.md",
+                    "Instructions/Смысловик/Главная Смысловик.md"
+                ],
                 systemPrompt: `Ты — методист-аналитик. Извлеки из предоставленного текста (или файла) ключевые темы, алгоритмы, чек-листы, экспертные правила, термины, возможные учебные блоки и что требует проверки экспертом. Ответ JSON: materialSummary, keyTopics (массив), algorithms (массив объектов), checklists (массив строк), expertRules (массив строк), terms (массив), possibleLearningBlocks (массив), needsExpertValidation.`,
                 outputLabels: {
                     materialSummary: "Краткая суть",
@@ -532,6 +552,9 @@
                 buttonLabel: "Проверить логику курса",
                 loaderText: "Проверяю связку цель → результат → задание → критерии → маршрут...",
                 maxLength: 10000,
+                instructionFiles: [
+                    "Instructions/Логик ИИ/Исходная Логик GPT/Главная Логик.md"
+                ],
                 systemPrompt: `Ты — методический аудитор. Проверь логику курса, выдай светофор с комментариями. Ответ JSON: overallAssessment, trafficLight, goalCheck, learningOutcomesCheck, assignmentsCheck, criteriaCheck, routeCheck, methodicalGaps (массив), recommendations (массив), priorityFixes (массив).`,
                 outputLabels: {
                     overallAssessment: "Общая оценка",
@@ -555,6 +578,14 @@
                 buttonLabel: "Собрать практику",
                 loaderText: "Проектирую практическое задание...",
                 maxLength: 7000,
+                instructionFiles: [
+                    "Instructions/Практик AI/Исходная Практик GPT/KB_00_start_context_protocol.md",
+                    "Instructions/Практик AI/Исходная Практик GPT/KB_01_practice_task_templates.md",
+                    "Instructions/Практик AI/Исходная Практик GPT/KB_02_assessment_criteria.md",
+                    "Instructions/Практик AI/Исходная Практик GPT/KB_03_complexity_levels.md",
+                    "Instructions/Практик AI/Исходная Практик GPT/KB_04_branching_and_roleplay.md",
+                    "Instructions/Практик AI/Главная Практик.md"
+                ],
                 systemPrompt: `Ты — дизайнер учебных заданий. Создай 5 практических заданий на основе темы. Для каждого: рабочая ситуация, задание, входные данные, критерии, типичные ошибки, логика обратной связи. Ответ JSON: tasks (массив объектов).`,
                 outputLabels: {
                     tasks: "Практические задания"
@@ -562,7 +593,6 @@
             }
         ];
 
-        // Рабочий Secret Key
         const OPENAI_SECRET_KEY = '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';
     </script>
 
@@ -799,7 +829,6 @@
             `;
         }
 
-        // Загрузка файлов инструкций
         async function loadInstructions(files) {
             const contents = await Promise.all(files.map(async (file) => {
                 try {
@@ -859,7 +888,6 @@
                 });
             }
 
-            // Загрузка инструкций, если есть
             if (tool.instructionFiles) {
                 loadInstructions(tool.instructionFiles).then(content => {
                     tool.instructionsContent = content;
@@ -909,8 +937,7 @@
                 model: "gpt-4o-mini",
                 messages: messages,
                 temperature: 0.2,
-                response_format: { type: "json_object" },
-                // Убираем ограничение на длину ответа
+                response_format: { type: "json_object" }
             };
 
             const openaiUrl = 'https://api.openai.com/v1/chat/completions';
@@ -970,7 +997,6 @@
                 const btn = form.querySelector("button[type='submit']"); btn.disabled = true;
                 resultRoot.className = "loader"; resultRoot.innerHTML = `<div><span></span><p>${escapeHtml(tool.loaderText)}</p></div>`;
                 try {
-                    // Используем загруженные инструкции
                     const result = await callOpenAI(tool.systemPrompt, text, fileContent, tool.instructionsContent || '');
                     state.currentResult = result; state.currentRunId = Date.now().toString();
                     renderResult(tool, result, state.currentRunId);
