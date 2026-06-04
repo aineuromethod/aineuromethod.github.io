@@ -1,0 +1,889 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>НЕЙРОМЕТОД AI</title>
+    <meta name="description" content="Комплекс AI-инструментов для быстрой разработки курсов: от сырого запроса до практических заданий">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f7f5ef;
+            --surface: #ffffff;
+            --surface-2: #eef4f2;
+            --ink: #1f2a2a;
+            --muted: #69706d;
+            --line: #d9ded7;
+            --teal: #19736b;
+            --teal-dark: #105d56;
+            --teal-deep: #083b35;
+            --berry: #a23e55;
+            --amber: #c57a1c;
+            --green: #238457;
+            --yellow: #b98317;
+            --red: #b6453f;
+            --shadow: 0 20px 48px rgba(31, 42, 42, 0.12);
+            --radius-sm: 7px;
+            --radius-md: 9px;
+            --radius-lg: 12px;
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { color: inherit; text-decoration: none; }
+        button, input, textarea, select { font: inherit; }
+
+        /* ----- TOPBAR ----- */
+        .topbar {
+            position: sticky; top: 0; z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            padding: 14px clamp(18px, 4vw, 54px);
+            background: #2c3944;                    /* новый цвет шапки */
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            backdrop-filter: blur(18px);
+            color: #ffffff;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        /* Левая часть – логотип */
+        .topbar-left {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .topbar-logo {
+            height: 48px;
+            width: auto;
+            object-fit: contain;
+            transition: opacity 0.2s;
+        }
+        .topbar-logo:hover {
+            opacity: 0.85;
+        }
+
+        /* Центральная часть – лицензия */
+        .topbar-center {
+            flex: 1 1 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .license-info {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            line-height: 1.5;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+        .license-info span {
+            display: block;
+        }
+
+        /* Правая часть – навигация */
+        .topbar-right {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .nav a {
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            color: rgba(255,255,255,0.85);
+            font-weight: 600;
+            transition: background 0.2s, color 0.2s;
+        }
+        .nav a:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.12);
+        }
+
+        /* ----- HERO – белый фон ----- */
+        .hero {
+            position: relative;
+            background: var(--surface);
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .hero-inner {
+            width: min(1180px, 100%);
+            margin: 0 auto;
+            padding: 100px clamp(18px, 4vw, 54px);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-content { max-width: 55%; }
+
+        .hero-eyebrow {
+            margin: 0 0 14px;
+            font-size: 13px; font-weight: 800;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            color: var(--teal);
+        }
+
+        .hero h1 {
+            margin: 0 0 18px;
+            font-size: clamp(48px, 8vw, 96px);
+            line-height: 0.96; letter-spacing: -0.02em;
+            color: var(--ink);
+        }
+
+        .hero-subtitle {
+            margin-bottom: 18px;
+            font-size: clamp(22px, 3vw, 34px);
+            line-height: 1.14; color: var(--ink);
+        }
+
+        .hero-copy {
+            color: var(--muted); font-size: 18px; max-width: 680px;
+        }
+
+        .hero-actions {
+            display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px;
+        }
+
+        /* ----- ПАРЯЩАЯ КАРТОЧКА ----- */
+        .hero-panel {
+            position: absolute;
+            left: 72%; top: 50%; transform: translate(-50%, -50%);
+            width: 340px; max-width: calc(100vw - 40px);
+            background: var(--surface); border: 1px solid var(--line);
+            border-radius: 20px; padding: 32px 28px;
+            color: var(--ink);
+            box-shadow: 0 30px 50px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.03);
+            z-index: 3; transition: transform 0.3s ease;
+        }
+        .hero-panel:hover { transform: translate(-50%, -52%); }
+        .hero-panel .eyebrow { color: var(--teal); margin-bottom: 8px; }
+        .hero-panel h2 { font-size: 24px; margin-bottom: 16px; color: var(--ink); }
+
+        .flow { display: grid; gap: 8px; }
+        .flow span {
+            display: block; padding: 10px 14px;
+            background: var(--surface-2); border-left: 4px solid var(--teal);
+            border-radius: 8px; font-weight: 600; font-size: 14px;
+            color: var(--ink);
+        }
+
+        /* ----- ОСТАЛЬНЫЕ СЕКЦИИ ----- */
+        .app { min-height: 70vh; }
+        .section { padding: 54px clamp(18px, 4vw, 54px); }
+        .section-inner { width: min(1180px, 100%); margin: 0 auto; }
+
+        .button {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-height: 46px; padding: 11px 20px;
+            border: 1px solid transparent; border-radius: var(--radius-sm);
+            cursor: pointer; font-weight: 700;
+            transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+            white-space: nowrap;
+        }
+        .button:hover { transform: translateY(-2px); }
+
+        .button.primary {
+            color: #fff; background: var(--teal);
+            box-shadow: 0 10px 22px rgba(25,115,107,0.25);
+        }
+        .button.primary:hover {
+            background: var(--teal-dark); box-shadow: 0 14px 28px rgba(25,115,107,0.3);
+        }
+
+        .button.secondary {
+            color: var(--teal); background: transparent; border-color: var(--teal);
+        }
+        .button.secondary:hover { background: rgba(25,115,107,0.08); color: var(--teal-dark); }
+
+        .button.ghost {
+            color: var(--teal); background: transparent; border-color: var(--teal);
+        }
+        .button.ghost:hover { background: rgba(25,115,107,0.08); }
+
+        .section-head {
+            display: flex; align-items: flex-end; justify-content: space-between;
+            gap: 24px; margin-bottom: 28px;
+        }
+        .section-head h2 { margin-bottom: 6px; font-size: clamp(28px, 4vw, 44px); line-height: 1.08; }
+        .section-head p { max-width: 720px; color: var(--muted); }
+
+        .tools-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+
+        .tool-card {
+            background: var(--surface); border: 1px solid var(--line);
+            border-radius: var(--radius-lg); display: flex; min-height: 300px;
+            flex-direction: column; gap: 14px; padding: 24px;
+            transition: box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+        .tool-card:hover { box-shadow: 0 12px 28px rgba(0,0,0,0.06); border-color: #bcc9c0; }
+        .stage { width: fit-content; padding: 5px 10px; color: var(--teal-dark); background: #e0ede8; border-radius: 20px; font-size: 13px; font-weight: 800; letter-spacing: 0.01em; }
+        .meta-list { display: grid; gap: 8px; margin: 0; }
+        .meta-list dt { color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; }
+        .meta-list dd { margin: 0; }
+        .tool-card .button { margin-top: auto; }
+
+        .audience-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+        .audience-item {
+            background: var(--surface); border: 1px solid var(--line);
+            border-radius: var(--radius-lg); min-height: 108px; padding: 20px;
+            font-weight: 800; display: flex; align-items: center; justify-content: center;
+            text-align: center; transition: box-shadow 0.2s;
+        }
+        .audience-item:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+
+        .warning {
+            padding: 14px 18px; color: #5c4215; background: #fff6de;
+            border: 1px solid #ecd08c; border-radius: var(--radius-md);
+            font-weight: 700; font-size: 14px; line-height: 1.4;
+        }
+
+        /* ----- ИНСТРУМЕНТЫ ----- */
+        .tool-workspace {
+            display: grid; grid-template-columns: minmax(320px, 0.78fr) minmax(0, 1fr);
+            gap: 0; overflow: hidden; box-shadow: var(--shadow); border-radius: var(--radius-lg);
+        }
+        .form-panel { padding: 28px; border-right: 1px solid var(--line); background: #fbfaf6; }
+        .result-panel { min-height: 620px; padding: 28px; background: var(--surface); }
+
+        .form { display: grid; gap: 18px; margin-top: 18px; }
+        .field { display: grid; gap: 7px; }
+        .field label { font-weight: 800; }
+        .field input, .field textarea, .field select {
+            width: 100%; border: 1px solid #cfd7d2; border-radius: var(--radius-sm);
+            background: var(--surface); color: var(--ink); outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .field input, .field select { min-height: 44px; padding: 9px 12px; }
+        .field textarea { min-height: 138px; resize: vertical; padding: 12px; }
+        .field textarea.main-input { min-height: 260px; }
+        .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(25,115,107,0.14); }
+        .char-counter { justify-self: end; color: var(--muted); font-size: 12px; }
+
+        /* Кнопка микрофона – новый светлый фон */
+        .main-input-wrapper { position: relative; }
+        .mic-button {
+            position: absolute; bottom: 12px; right: 12px;
+            width: 40px; height: 40px; border-radius: 50%;
+            background: #f4f3f2;                      /* светлый фон вместо градиента */
+            border: 1px solid #cfd7d2;               /* лёгкая граница для контраста */
+            color: #2c3944;                          /* цвет иконки через currentColor */
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .mic-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+        }
+        .mic-button svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;       /* теперь цвет иконки наследуется от color */
+        }
+
+        .result-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 20px; }
+        .result-card h3 { margin-bottom: 10px; font-size: 18px; font-weight: 800; }
+        .result-card ul { margin: 0; padding-left: 20px; }
+        .result-card li+li { margin-top: 6px; }
+        .check-row { display: flex; gap: 10px; align-items: flex-start; }
+        .status-dot { flex: 0 0 auto; width: 12px; height: 12px; margin-top: 7px; border-radius: 50%; }
+        .status-green { background: var(--green); }
+        .status-yellow { background: var(--yellow); }
+        .status-red { background: var(--red); }
+        .status-neutral { background: var(--muted); }
+        .cta-strip { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin-top: 20px; padding: 20px; background: var(--surface-2); border-radius: var(--radius-md); }
+        .feedback { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 16px; color: var(--muted); }
+        .feedback button { min-width: 38px; min-height: 34px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); cursor: pointer; transition: background 0.2s; }
+        .feedback button:hover { background: var(--surface-2); }
+
+        .lead-box {
+            background: var(--surface); border: 1px solid var(--line);
+            border-radius: var(--radius-lg); display: grid;
+            grid-template-columns: 0.8fr 1.2fr; gap: 28px; padding: 28px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+        }
+        .lead-form { display: grid; gap: 14px; }
+        .lead-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+        .message { padding: 12px 16px; border-radius: var(--radius-sm); font-weight: 700; }
+        .message.error { color: #7d211d; background: #fde9e7; border: 1px solid #f0aaa5; }
+        .message.success { color: #125739; background: #e4f5ed; border: 1px solid #a7dec5; }
+
+        /* Новые блоки */
+        .feature-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+        .feature-card {
+            background: var(--surface); border: 1px solid var(--line);
+            border-radius: var(--radius-lg); padding: 24px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .feature-card h3 { font-size: 18px; margin: 0; }
+        .feature-card p { color: var(--muted); margin: 0; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; text-align: center; margin-top: 28px; }
+        .stat-item { background: var(--surface-2); border-radius: var(--radius-lg); padding: 24px; }
+        .stat-number { font-size: 36px; font-weight: 800; color: var(--teal); }
+        .stat-label { color: var(--muted); font-weight: 600; }
+
+        .comparison-table { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; margin-top: 28px; }
+        .comparison-header { background: var(--surface-2); padding: 16px 24px; font-weight: 800; }
+        .comparison-cell { padding: 14px 24px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
+        .comparison-cell.before { color: var(--muted); }
+        .comparison-cell.after { background: #f8fbfa; }
+
+        /* Баннер курса – новый тёмный цвет #2c3944 вместо зелёного градиента */
+        .course-banner {
+            background: #2c3944;                      /* новый цвет */
+            color: #fff;
+            border-radius: var(--radius-lg);
+            padding: 36px;
+            margin-top: 28px;
+        }
+
+        /* Двухколоночная модификация */
+        .course-banner.course-two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .course-left .eyebrow {
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 8px;
+        }
+
+        .course-right h3 {
+            font-size: 20px;
+            margin: 0 0 12px;
+        }
+
+        .course-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        /* Кнопки внутри баннера */
+        .course-banner .button.primary {
+            background: #fff;
+            color: #2c3944;           /* тёмный текст на белой кнопке */
+            border: none;
+        }
+        .course-banner .button.primary:hover {
+            background: #eef4f2;
+        }
+        .course-banner .button.secondary {
+            background: transparent;
+            border-color: #fff;
+            color: #fff;
+        }
+        .course-banner .button.secondary:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .footer {
+            display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px;
+            padding: 24px clamp(18px, 4vw, 54px); color: var(--muted);
+            border-top: 1px solid var(--line); font-size: 14px;
+        }
+
+        .back-link { color: var(--teal); font-weight: 700; display: inline-block; margin-bottom: 16px; }
+        .back-link:hover { color: var(--teal-dark); }
+
+        /* Адаптивность */
+        @media (max-width: 1100px) {
+            .tools-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .hero-panel { left: 65%; width: 300px; }
+            .hero-content { max-width: 60%; }
+        }
+        @media (max-width: 980px) {
+            .hero { min-height: auto; padding: 60px 0; }
+            .hero-inner { flex-direction: column; padding: 40px clamp(18px, 4vw, 54px); }
+            .hero-content { max-width: 100%; padding-right: 0; }
+            .hero-panel { position: relative; left: auto; top: auto; transform: none; width: 100%; max-width: 100%; margin-top: 32px; box-shadow: 0 20px 30px rgba(0,0,0,0.08); }
+            .hero-panel:hover { transform: none; }
+            .tool-workspace, .lead-box { grid-template-columns: 1fr; }
+            .audience-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .feature-grid, .stats-grid { grid-template-columns: 1fr; }
+            .comparison-table { grid-template-columns: 1fr; }
+            .course-banner.course-two-col { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 720px) {
+            .topbar {
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+            }
+            .topbar-left,
+            .topbar-right {
+                flex: none;
+                width: 100%;
+                justify-content: center;
+            }
+            .topbar-center {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+            .license-info {
+                font-size: 12px;
+            }
+            .topbar-logo {
+                height: 38px;
+            }
+            .section { padding: 34px 16px; }
+            .tools-grid, .audience-grid, .lead-row, .feature-grid, .stats-grid { grid-template-columns: 1fr; }
+            .hero-actions { flex-direction: column; }
+            .button { width: 100%; justify-content: center; }
+            .course-banner { padding: 24px; }
+            .course-actions { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-left">
+            <a href="#home" aria-label="НЕЙРОМЕТОД AI — на главную">
+                <img src="logo.png" alt="Логотип НЕЙРОМЕТОД AI" class="topbar-logo">
+            </a>
+        </div>
+        <div class="topbar-center">
+            <div class="license-info">
+                <span>Лицензия Л035-01225-37/00282484 от 05.02.2018 г.</span>
+                <span>на осуществление образовательной деятельности</span>
+            </div>
+        </div>
+        <nav class="topbar-right nav" aria-label="Основная навигация">
+            <a href="#tools">Инструменты</a>
+            <a href="#audience">Для кого</a>
+            <a href="#lead">Заявка</a>
+        </nav>
+    </header>
+
+    <main id="app" class="app"></main>
+
+    <footer class="footer">
+        <p>НЕЙРОМЕТОД AI. Инструменты для проектирования обучения.</p>
+        <p>Результаты AI требуют проверки методологом, экспертом предметной области или ответственным за программу обучения.</p>
+    </footer>
+
+    <script>
+        window.__TOOLS__ = [{"id":"brief","slug":"brief","name":"Нейрометод.Бриф AI","stage":"Запрос заказчика","role":"Разбирает первичный запрос заказчика и превращает его в понятный проектный бриф: цель, аудитория, учебная задача, ограничения, риски и вопросы для уточнения.","inputTitle":"Опишите запрос заказчика","inputPlaceholder":"Например: заказчик хочет обучить отдел продаж работать с договорами, потому что сотрудники часто обращаются к юристам по повторяющимся вопросам...","buttonLabel":"Собрать бриф","loaderText":"Разбираю запрос и собираю проектный бриф...","maxLength":5000,"fields":[],"inputLabel":"Описание запроса заказчика, встреча, письмо, заметки или фрагмент переписки.","outputLabels":{"requestSummary":"Суть запроса","businessGoal":"Вероятная бизнес-цель","learningTask":"Учебная задача","targetAudience":"Целевая аудитория","missingData":"Что неясно","questionsForClient":"Вопросы заказчику","projectRisks":"Риски проекта","draftBrief":"Черновой проектный бриф","nextStep":"Следующий шаг"},"demoResult":{"requestSummary":"Заказчик хочет обучить отдел продаж работе с договорами, чтобы сократить количество обращений к юристам по типовым вопросам.","businessGoal":"Снизить нагрузку на юридический отдел и ускорить процесс согласования договоров.","learningTask":"Научить менеджеров самостоятельно проверять и готовить типовые договоры, понимать зоны своей ответственности и риски.","targetAudience":"Менеджеры отдела продаж, работающие с корпоративными клиентами.","missingData":"Точный перечень типовых ошибок, текущий уровень знаний менеджеров, статистика обращений к юристам.","questionsForClient":["Какие именно ошибки чаще всего совершают менеджеры?","Есть ли утверждённые шаблоны договоров?","Какие изменения менеджеры могут вносить самостоятельно?"],"projectRisks":["Сопротивление менеджеров новым обязанностям","Неполнота или устаревание шаблонов договоров","Разное понимание зон ответственности у продаж и юристов"],"draftBrief":"Проектный бриф: обучение менеджеров отдела продаж самостоятельной работе с типовыми договорами для снижения нагрузки на юридический отдел.","nextStep":"Провести интервью с руководителем отдела продаж и юристом для уточнения деталей."}},{"id":"profile","slug":"profile","name":"Нейрометод.Профиль AI","stage":"Аудитория обучения","role":"Помогает описать целевую аудиторию курса: рабочий контекст, боли, барьеры, мотивацию, уровень подготовки и условия применения навыка.","inputTitle":"Опишите аудиторию и тему обучения","inputPlaceholder":"Например: аудитория — менеджеры отдела продаж, 25–35 лет, работают с корпоративными клиентами, не любят длительное обучение, часто ошибаются в документах...","buttonLabel":"Собрать профиль аудитории","loaderText":"Строю гипотезу о целевой аудитории...","maxLength":4000,"fields":[],"inputLabel":"Описание аудитории, должности, задач, ситуации обучения или вводные от HR/руководителя.","outputLabels":{"audienceProfile":"Первичный портрет ЦА","workContext":"Рабочий контекст","probablePains":"Вероятные боли","learningBarriers":"Барьеры обучения","motivationFactors":"Мотивация","hypothesisRisks":"Риски неверной гипотезы","whatToValidate":"Что проверить","questionsForHR":"Вопросы для HR/руководителя","designImplications":"Вывод для проектирования"},"demoResult":{"audienceProfile":"Менеджеры отдела продаж, 25–35 лет, работают с корпоративными клиентами. Предпочитают короткие форматы обучения.","workContext":"Ежедневная работа с клиентами, высокая загрузка, необходимость быстро реагировать на запросы.","probablePains":["Нехватка времени на изучение объёмных материалов","Боязнь совершить ошибку в документах","Непонимание юридических формулировок"],"learningBarriers":["Низкая мотивация к длительному обучению","Скептическое отношение к теории","Отсутствие времени на отработку навыков"],"motivationFactors":["Снижение зависимости от юридического отдела","Ускорение сделок","Повышение профессиональной уверенности"],"hypothesisRisks":["Аудитория может оказаться более разнородной по опыту","Возможны разные уровни базовой юридической грамотности"],"whatToValidate":["Реальный уровень знаний менеджеров","Типичные сценарии работы с договорами","Готовность руководителей поддерживать обучение"],"questionsForHR":["Какие метрики эффективности менеджеров будут расти после обучения?","Есть ли примеры успешных и неуспешных кейсов работы с договорами?"],"designImplications":"Рекомендуется микрообучение, короткие видеоинструкции и тренажёры на реальных кейсах."}},{"id":"diagnost","slug":"diagnost","name":"Нейрометод.Диагност AI","stage":"Проверка гипотез эффективного обучения","role":"Создаёт диагностическую анкету, чтобы быстро проверить, что именно мешает/может помешать сотрудникам выполнять рабочее действие правильно.","inputTitle":"Какую гипотезу об аудитории нужно проверить?","inputPlaceholder":"Например: есть гипотеза, что сотрудники знают регламент, но не применяют его в сложных клиентских ситуациях...","buttonLabel":"Собрать анкету","loaderText":"Формирую диагностическую анкету...","maxLength":4000,"fields":[],"inputLabel":"Гипотеза о проблеме аудитории или описание типичных ошибок.","outputLabels":{"diagnosticGoal":"Цель диагностики","hypotheses":"Гипотезы для проверки","surveyQuestions":"Анкета","launchRecommendation":"Рекомендация по запуску"},"demoResult":{"diagnosticGoal":"Выяснить, почему сотрудники не применяют регламент в сложных клиентских ситуациях.","hypotheses":["Сотрудники знают регламент, но не могут адаптировать его к нестандартным случаям","Регламент устарел и не покрывает реальные ситуации","Сотрудники боятся принимать решения без согласования"],"surveyQuestions":[{"question":"Опишите кратко последнюю сложную ситуацию с клиентом, в которой вы не смогли применить регламент.","type":"open"},{"question":"Насколько хорошо регламент описывает ваши реальные рабочие ситуации? (1-5)","type":"scale"},{"question":"Что бы вы изменили в регламенте, чтобы он стал полезнее?","type":"open"},{"question":"К кому вы обычно обращаетесь за помощью в сложных ситуациях?","type":"choice","options":["Коллега","Руководитель","Юрист","Другой отдел"]}],"launchRecommendation":"Анкету рекомендуется запустить анонимно, с кратким объяснением цели — улучшить регламент, а не оценить сотрудников."}},{"id":"smyslovik","slug":"smyslovik","name":"Нейрометод.Смысловик AI","stage":"Работа с экспертом","role":"Помогает распаковать экспертные материалы: интервью, регламенты, инструкции, транскрибации и рабочие заметки.","inputTitle":"Вставьте сырой материал","inputPlaceholder":"Вставьте интервью, транскрибацию, регламент, экспертный комментарий или другой сырой материал, из которого нужно выделить структуру опыта.","buttonLabel":"Вытащить смысловую структуру","loaderText":"Разбираю материал и выделяю структуру опыта...","maxLength":15000,"fields":[],"inputLabel":"Сырой текст, интервью, регламент, экспертный комментарий или расшифровка встречи.","outputLabels":{"materialSummary":"Краткая суть материала","keyTopics":"Ключевые темы","algorithms":"Алгоритмы","checklists":"Чек-листы","expertRules":"Экспертные правила","terms":"Термины","possibleLearningBlocks":"Возможные учебные блоки","needsExpertValidation":"Что требует проверки экспертом"},"demoResult":{"materialSummary":"Материал представляет собой экспертное интервью с юристом о типовых ошибках менеджеров при работе с договорами.","keyTopics":["Типовые ошибки в договорах","Зоны ответственности менеджера и юриста","Алгоритм проверки договора перед отправкой клиенту"],"algorithms":[{"name":"Алгоритм проверки договора","steps":["Проверить реквизиты сторон","Сверить сумму и условия оплаты","Проверить сроки исполнения","Убедиться в отсутствии скрытых условий","Согласовать изменения с юристом при отклонении от шаблона"]}],"checklists":["Чек-лист проверки договора перед отправкой","Чек-лист для согласования нестандартных условий"],"expertRules":["Все изменения в шаблонных пунктах — только через юриста","Суммы свыше 1 млн рублей — обязательное согласование","Сроки исполнения менее 3 дней — флаг для дополнительной проверки"],"terms":["Форс-мажор","Неустойка","Пролонгация","Арбитражная оговорка"],"possibleLearningBlocks":["Типовые ошибки в договорах","Алгоритм проверки договора","Зоны ответственности","Практикум по проверке договоров"],"needsExpertValidation":"Алгоритмы и правила необходимо сверить с актуальными регламентами компании."}},{"id":"logic","slug":"logic","name":"Нейрометод.Логик AI","stage":"Структура курса","role":"Проверяет логику курса: связаны ли цель, результаты обучения, модули, задания, критерии оценки и маршрут участника.","inputTitle":"Вставьте структуру курса / программу / описание модуля","inputPlaceholder":"Вставьте предполагаемые цель курса, модули, результаты обучения, задания, критерии оценки или описание образовательного маршрута.","buttonLabel":"Проверить логику курса","loaderText":"Проверяю связку цель → результат → задание → критерии → маршрут...","maxLength":10000,"fields":[],"inputLabel":"Структура курса, программа, описание модулей, результаты обучения или план занятий.","outputLabels":{"overallAssessment":"Общая оценка логики","trafficLight":"Светофор","goalCheck":"Цель","learningOutcomesCheck":"Результаты обучения","assignmentsCheck":"Задания","criteriaCheck":"Критерии","routeCheck":"Маршрут","methodicalGaps":"Методические разрывы","recommendations":"Рекомендации","priorityFixes":"Приоритет правок"},"demoResult":{"overallAssessment":"Структура курса в целом логична, но есть несколько методических разрывов.","trafficLight":"yellow","goalCheck":{"status":"green","comment":"Цель сформулирована чётко и соответствует бизнес-задаче."},"learningOutcomesCheck":{"status":"yellow","comment":"Результаты обучения описаны, но не все из них измеримы."},"assignmentsCheck":{"status":"yellow","comment":"Задания есть, но не все связаны с заявленными результатами обучения."},"criteriaCheck":{"status":"red","comment":"Критерии оценки отсутствуют для двух модулей из трёх."},"routeCheck":{"status":"green","comment":"Маршрут участника понятен и последователен."},"methodicalGaps":["Отсутствуют критерии оценки для модулей 2 и 3","Задание в модуле 1 не проверяет заявленный результат обучения"],"recommendations":["Разработать критерии оценки для всех модулей","Связать задания с результатами обучения","Добавить точки промежуточной обратной связи"],"priorityFixes":["1. Разработать критерии оценки","2. Актуализировать задания под результаты обучения"]}},{"id":"practice","slug":"practice","name":"Нейрометод.Практик AI","stage":"Практические задания","role":"Помогает превратить тему или теорию в рабочее задание, кейс, симуляцию или практику с понятными критериями оценки.","inputTitle":"Вставьте тему, теорию или учебный результат","inputPlaceholder":"Например: участник должен научиться проверять договор перед отправкой клиенту и понимать, какие изменения можно вносить самостоятельно.","buttonLabel":"Собрать практику","loaderText":"Проектирую практическое задание...","maxLength":7000,"fields":[],"inputLabel":"Тема, теория, учебный результат, навык или рабочая ситуация.","outputLabels":{"observableAction":"Наблюдаемое действие","practicalGoal":"Практическая цель","workSituation":"Рабочая ситуация","task":"Задание","inputDataForLearner":"Входные данные","assessmentCriteria":"Критерии оценки","typicalMistakes":"Типичные ошибки","feedbackLogic":"Обратная связь","advancedVersion":"Усложнение"},"demoResult":{"observableAction":"Проверяет договор перед отправкой клиенту и определяет, какие изменения можно вносить самостоятельно.","practicalGoal":"Научиться проверять типовой договор и принимать решение о необходимости согласования с юристом.","workSituation":"Вы — менеджер отдела продаж. Клиент запросил типовой договор, но попросил изменить сроки оплаты.","task":"Проверьте договор по чек-листу и определите: можно ли согласовать изменение сроков самостоятельно или требуется участие юриста.","inputDataForLearner":["Типовой договор поставки","Чек-лист проверки договора","Политика согласования изменений","Письмо клиента с запросом"],"assessmentCriteria":["Правильно применён чек-лист проверки","Верно определена зона ответственности","Дано обоснование решения (самостоятельно / через юриста)","Отсутствие критических ошибок, ведущих к рискам для компании"],"typicalMistakes":["Пропуск пункта о сроках исполнения","Самостоятельное изменение суммы договора без согласования","Игнорирование скрытых условий в дополнительных соглашениях"],"feedbackLogic":"При ошибке система подсвечивает пункт чек-листа, который был пропущен или применён неверно, и предлагает повторить задание.","advancedVersion":"Усложнённый кейс: клиент предлагает нетиповые условия договора и просит ускоренного согласования."}}];
+
+        const originalFetch = window.fetch ? window.fetch.bind(window) : null;
+        window.fetch = async function(url, options = {}) {
+            const target = String(url);
+            if (target === '/api/tools') {
+                return new Response(JSON.stringify(window.__TOOLS__), { status: 200, headers: { 'Content-Type': 'application/json' } });
+            }
+            if (target.includes('/api/tools/') && target.endsWith('/run')) {
+                const slug = target.split('/api/tools/')[1].split('/')[0];
+                const tool = (window.__TOOLS__ || []).find(t => t.slug === slug);
+                return new Response(JSON.stringify({
+                    toolRunId: 'local_preview',
+                    result: tool?.demoResult || {
+                        summary: 'Пример результата',
+                        blocks: [
+                            { title: 'Так может выглядеть структурированный ответ инструмента после обработки ваших вводных.', content: 'Здесь будет структурированный ответ инструмента.' },
+                            { title: 'Следующий шаг', content: 'Вы можете оставить заявку на пилотный проект.' }
+                        ],
+                        nextStep: 'Свяжитесь с нами для подключения.'
+                    }
+                }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+            }
+            if (target === '/api/leads' || target === '/api/feedback') {
+                return new Response(JSON.stringify({ id: 'local_preview', message: 'Заявка принята (демо).' }), { status: 201, headers: { 'Content-Type': 'application/json' } });
+            }
+            if (originalFetch) return originalFetch(url, options);
+            throw new Error('Fetch is unavailable in this browser');
+        };
+    </script>
+
+    <script>
+        const app = document.querySelector("#app");
+        const state = { tools: [], currentResult: null, currentRunId: null };
+
+        const outputHints = {
+            brief: { input: "Описание запроса заказчика, встреча, письмо, заметки или фрагмент переписки.", output: "Структурированный бриф, список недостающих данных и вопросы заказчику." },
+            profile: { input: "Описание аудитории, должности, задач, ситуации обучения или вводные от HR/руководителя.", output: "Профиль аудитории и выводы для проектирования курса." },
+            diagnost: { input: "Гипотеза о проблеме аудитории или описание типичных ошибок.", output: "Анкета, диагностические вопросы и логика интерпретации ответов." },
+            smyslovik: { input: "Сырой текст, интервью, регламент, экспертный комментарий или расшифровка встречи.", output: "Ключевые темы, алгоритмы, чек-листы, экспертные правила и возможные учебные блоки." },
+            logic: { input: "Структура курса, программа, описание модулей, результаты обучения или план занятий.", output: "Светофор логики курса, методические разрывы, рекомендации и приоритет правок." },
+            practice: { input: "Тема, теория, учебный результат, навык или рабочая ситуация.", output: "Практическое задание, входные данные, критерии оценки, типичные ошибки и задачи “со звездочкой”." }
+        };
+
+        const statusLabels = { green: "работает", yellow: "требует уточнения", red: "разрыв", neutral: "информация" };
+
+        function boot() {
+            state.tools = window.__TOOLS__ || [];
+            window.addEventListener("hashchange", render);
+            render();
+        }
+
+        function render() {
+            const hash = window.location.hash || "#home";
+            const toolMatch = hash.match(/^#tool\/([a-z-]+)$/);
+            if (toolMatch) {
+                const tool = state.tools.find((item) => item.slug === toolMatch[1]);
+                renderToolPage(tool);
+                window.scrollTo({ top: 0, behavior: 'instant' });
+                return;
+            }
+            renderHome();
+        }
+
+        function renderHome() {
+            app.innerHTML = `
+                <section class="hero" id="home">
+                    <div class="hero-inner">
+                        <div class="hero-content">
+                            <p class="hero-eyebrow">КОМПЛЕКС ИНСТРУМЕНТОВ ДЛЯ БЫСТРОЙ РАЗРАБОТКИ КУРСОВ</p>
+                            <h1>НЕЙРОМЕТОД AI</h1>
+                            <p class="hero-subtitle">Спроектируйте курс за 15 минут даже при минимальных данных о проекте!</p>
+                            <p class="hero-copy">Загрузите информацию по проекту и получите методологический каркас, готовый для разработки.</p>
+                            <p class="hero-copy" style="font-size:16px; margin-top:8px;">Для методологов, HR-специалистов, экспертов и команд разработки обучения</p>
+                            <div class="hero-actions">
+                                <a class="button primary" href="#tools">Попробовать инструмент</a>
+                                <a class="button secondary" href="#lead">Оставить заявку</a>
+                                <a class="button ghost" href="#lead">Обсудить внедрение в команду</a>
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="hero-panel" aria-label="Что можно собрать">
+                        <p class="eyebrow">Что можно собрать за 10 минут</p>
+                        <h2>6 шагов к структуре курса</h2>
+                        <div class="flow">
+                            <span>1. Проанализировать запрос заказчика</span>
+                            <span>2. Описать профиль аудитории</span>
+                            <span>3. Составить диагностическую карту</span>
+                            <span>4. Распаковать экспертные материалы</span>
+                            <span>5. Сформировать структуру курса</span>
+                            <span>6. Получить основу заданий и критериев оценки</span>
+                        </div>
+                        <p style="margin-top: 16px; font-size: 13px; color: var(--muted); line-height: 1.5;">Результат не заменяет методолога, а ускоряет черновую проектную работу и помогает быстрее перейти к качественной доработке курса!</p>
+                    </aside>
+                </section>
+
+                <section class="section" id="tools">
+                    <div class="section-inner">
+                        <div class="section-head">
+                            <div>
+                                <h2>Проектирование обучения по этапам</h2>
+                                <p>Каждая карточка ведёт в отдельный рабочий экран с формой, запуском AI и структурированными блоками результата.</p>
+                            </div>
+                        </div>
+                        <div class="tools-grid">${state.tools.map(renderToolCard).join("")}</div>
+                    </div>
+                </section>
+
+                <section class="section" id="practical-tool">
+                    <div class="section-inner">
+                        <h2>Нейрометод AI — ваш практический инструмент</h2>
+                        <p style="color: var(--muted); margin-bottom: 28px;">Нейрометод AI создан командой разработки Института непрерывного образования и используется в реальной работе над образовательными продуктами.</p>
+                        <div class="feature-grid">
+                            <div class="feature-card">
+                                <h3>Основан на методике проектирования обучения</h3>
+                                <p>Инструменты не просто генерируют текст, а ведут пользователя по логике разработки курса: от запроса и аудитории до структуры, практики и критериев оценки.</p>
+                            </div>
+                            <div class="feature-card">
+                                <h3>Помогает работать с разрозненными вводными</h3>
+                                <p>Можно вставить заметки после встречи, фрагмент интервью, описание проблемы, структуру курса или экспертный материал — инструмент поможет привести данные к рабочему формату.</p>
+                            </div>
+                            <div class="feature-card">
+                                <h3>Показывает методические разрывы</h3>
+                                <p>Инструмент помогает увидеть, где цель курса не связана с заданиями, где не хватает критериев оценки или где маршрут обучения требует уточнения.</p>
+                            </div>
+                            <div class="feature-card">
+                                <h3>Ускоряет разработку курса</h3>
+                                <p>Вы быстрее получаете основу для методической работы: бриф, профиль аудитории, структуру, задания, критерии и список вопросов для уточнения.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section" id="expertise">
+                    <div class="section-inner">
+                        <h2>Мы используем эти инструменты в собственной разработке</h2>
+                        <p style="color: var(--muted); max-width: 800px;">Нейрометод AI разработан командой Института непрерывного образования. Мы работаем на рынке дополнительного образования более 10 лет и проектируем свои курсы. За последние два года AI-инструменты стали частью нашей основной методической работы. С их помощью мы проектируем, дорабатываем и проверяем образовательные продукты: от коротких практикумов до комплексных программ обучения.</p>
+                        <p style="font-weight: 700; margin-bottom: 28px;">Более 50 курсов были созданы или доработаны с использованием Нейрометод AI</p>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-number">10+ лет</div>
+                                <div class="stat-label">на рынке дополнительного образования</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">50+ курсов</div>
+                                <div class="stat-label">созданы или доработаны командой</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">2 года</div>
+                                <div class="stat-label">используем AI как основной инструмент разработки</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section" id="before-after">
+                    <div class="section-inner">
+                        <h2>Что изменит НЕЙРОМЕТОД в вашей работе:</h2>
+                        <div class="comparison-table">
+                            <div class="comparison-header">Без Нейрометод AI</div>
+                            <div class="comparison-header">С использованием Нейрометод AI</div>
+                            <div class="comparison-cell before">Заказчик даёт разрозненные вводные без готового ТЗ</div>
+                            <div class="comparison-cell after">Вы получаете структурированный проектный бриф</div>
+                            <div class="comparison-cell before">Не понятно, что именно должна уметь аудитория после обучения</div>
+                            <div class="comparison-cell after">Формулируется учебная задача и ожидаемое рабочее действие</div>
+                            <div class="comparison-cell before">Есть общее описание аудитории, но нет понимания её барьеров</div>
+                            <div class="comparison-cell after">Собирается профиль аудитории: боли, мотивация, ограничения, уровень подготовки</div>
+                            <div class="comparison-cell before">Эксперт даёт много материала без структуры</div>
+                            <div class="comparison-cell after">Из материала выделяются темы, алгоритмы, чек-листы и правила</div>
+                            <div class="comparison-cell before">Есть программа курса, но неясно, насколько она логична</div>
+                            <div class="comparison-cell after">Инструмент проверяет связку цель → результат → задания → критерии</div>
+                            <div class="comparison-cell before">Теория есть, а практики и оценки не хватает</div>
+                            <div class="comparison-cell after">Формируется основа практических заданий и критериев оценки</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section" id="audience">
+                    <div class="section-inner">
+                        <div class="section-head">
+                            <div>
+                                <p class="eyebrow">Для кого</p>
+                                <h2>Команды, которые проектируют обучение</h2>
+                            </div>
+                        </div>
+                        <div class="audience-grid">
+                            ${["Методологи", "Педдизайнеры", "Корпоративные тренеры", "L&D-команды", "EdTech-команды"].map(item => `<div class="audience-item">${item}</div>`).join("")}
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section" id="course-invite">
+                    <div class="section-inner">
+                        <div class="course-banner course-two-col">
+                            <div class="course-left">
+                                <p class="eyebrow">ОБУЧЕНИЕ</p>
+                                <h3 style="font-size: 24px; margin: 0 0 16px;">Хотите не просто пользоваться готовыми AI-инструментами, а встроить нейросети в свою разработку обучения?</h3>
+                                <p style="margin: 0 0 12px;"><strong>НЕЙРООПЕРАЦИЯ.МЕТОД</strong> — практикум для методологов, HR-специалистов, педагогических дизайнеров, экспертов и команд разработки курсов.</p>
+                                <p style="margin: 0;">Это не обучение “куда нажимать” и не набор готовых шаблонов. Это — практическая работа с вашими реальными методическими процессами: вы разберёте, как нейросети могут реально ускорить разработку обучения, какие задачи стоит передавать нейронкам и как собрать собственную систему помощников под вашу работу.</p>
+                            </div>
+                            <div class="course-right">
+                                <h3>Практикум «Нейрооперация.Метод»</h3>
+                                <p style="margin: 0 0 20px;">На выходе — не просто понимание возможностей нейросетей, а рабочая система: карта ваших задач, алгоритмы под повторяющиеся процессы, созданные вами AI-ассистенты и первые шаги внедрения AI в вашу разработку курсов.</p>
+                                <div class="course-actions">
+                                    <a class="button primary" href="#course">Узнать о курсе</a>
+                                    <a class="button secondary" href="#lead">Оставить заявку на обучение</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                ${renderLeadSection()}
+            `;
+            bindLeadForm();
+        }
+
+        function renderToolCard(tool) {
+            const hints = outputHints[tool.slug] || {};
+            return `
+                <article class="tool-card">
+                    <span class="stage">${escapeHtml(tool.stage)}</span>
+                    <div><h3>${escapeHtml(tool.name)}</h3><p>${escapeHtml(tool.role)}</p></div>
+                    <dl class="meta-list">
+                        <div><dt>Что на входе</dt><dd>${escapeHtml(hints.input || tool.inputLabel)}</dd></div>
+                        <div><dt>Что на выходе</dt><dd>${escapeHtml(hints.output || "Структурированный методический результат")}</dd></div>
+                    </dl>
+                    <a class="button primary" href="#tool/${tool.slug}">Открыть инструмент</a>
+                </article>
+            `;
+        }
+
+        function renderToolPage(tool) {
+            if (!tool) {
+                app.innerHTML = `<section class="section"><div class="section-inner"><a class="back-link" href="#home">← На главную</a><div class="message error">Инструмент не найден.</div></div></section>`;
+                return;
+            }
+            state.currentResult = null; state.currentRunId = null;
+            app.innerHTML = `
+                <section class="section tool-hero"><div class="section-inner"><a class="back-link" href="#tools">← Все инструменты</a><div class="tool-page-title"><span class="stage">Этап: ${escapeHtml(tool.stage)}</span><h1>${escapeHtml(tool.name)}</h1><p>${escapeHtml(tool.role)}</p><div class="warning">Не вставляйте персональные данные, коммерческую тайну и конфиденциальные документы без согласования с вашей компанией.</div></div></div></section>
+                <section class="section"><div class="section-inner"><div class="tool-workspace">
+                    <aside class="form-panel"><h2>${escapeHtml(tool.inputTitle)}</h2><form class="form" id="tool-form" novalidate>
+                        <div class="field"><label for="mainText">Введите запрос</label><div class="main-input-wrapper"><textarea class="main-input" id="mainText" name="mainText" maxlength="${tool.maxLength}" placeholder="${escapeHtml(tool.inputPlaceholder || '')}" required></textarea><button class="mic-button" type="button" aria-label="Голосовой ввод" title="Надиктовать вводные"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" fill="currentColor"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" fill="currentColor"/></svg></button></div><span class="char-counter" id="char-counter">0 / ${tool.maxLength}</span></div>
+                        <button class="button primary" type="submit">${escapeHtml(tool.buttonLabel)}</button><div id="form-message" aria-live="polite"></div>
+                    </form></aside>
+                    <section class="result-panel" aria-live="polite"><div id="result-root" class="empty-result"><div><h2>Результат появится здесь</h2><p>После запуска вы получите структурированный ответ по вашему запросу.</p></div></div></section>
+                </div></div></section>
+                ${renderLeadSection(tool.name)}
+            `;
+            bindToolForm(tool); bindLeadForm();
+        }
+
+        function bindToolForm(tool) {
+            const form = document.querySelector("#tool-form");
+            const message = document.querySelector("#form-message");
+            const resultRoot = document.querySelector("#result-root");
+            const mainText = document.querySelector("#mainText");
+            const counter = document.querySelector("#char-counter");
+            mainText.addEventListener("input", () => counter.textContent = `${mainText.value.length} / ${tool.maxLength}`);
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault(); message.innerHTML = "";
+                const input = Object.fromEntries(new FormData(form).entries());
+                const text = (input.mainText || "").trim();
+                if (!text) { message.innerHTML = '<div class="message error">Добавьте вводные данные для анализа</div>'; return; }
+                if (text.length > tool.maxLength) { message.innerHTML = '<div class="message error">Текст слишком длинный. Сократите материал или разбейте его на части.</div>'; return; }
+                const btn = form.querySelector("button[type='submit']"); btn.disabled = true;
+                resultRoot.className = "loader"; resultRoot.innerHTML = `<div><span></span><p>${escapeHtml(tool.loaderText)}</p></div>`;
+                try {
+                    const res = await fetch(`/api/tools/${tool.slug}/run`, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({input}) });
+                    const payload = await res.json().catch(()=>({}));
+                    if (!res.ok) throw new Error(payload.message || "Не удалось получить ответ");
+                    state.currentResult = payload.result; state.currentRunId = payload.toolRunId;
+                    renderResult(tool, payload.result, payload.toolRunId);
+                } catch (err) {
+                    resultRoot.className = "empty-result";
+                    resultRoot.innerHTML = `<div class="message error">${escapeHtml(err.message)}</div>`;
+                } finally { btn.disabled = false; }
+            });
+        }
+
+        function renderResult(tool, result, toolRunId) {
+            const root = document.querySelector("#result-root");
+            const entries = Object.entries(result || {});
+            root.className = "";
+            root.innerHTML = `
+                <div class="result-actions"><div><h2>Пример результата</h2><p>Так может выглядеть структурированный ответ инструмента после обработки ваших вводных.</p></div><button class="button secondary" id="copy-result">Скопировать результат</button></div>
+                <div class="result-grid">${entries.map(([k,v])=>renderResultCard(tool,k,v)).join("")}</div>
+                <div class="cta-strip"><strong>Хотите адаптировать инструмент под вашу команду?</strong><a class="button primary" href="#lead">Обсудить внедрение в команду</a></div>
+                <div class="feedback"><span>Оцените результат:</span>${[1,2,3,4,5].map(r=>`<button type="button" data-rating="${r}" aria-label="Оценка ${r}">${r}</button>`).join("")}<span id="feedback-message"></span></div>
+            `;
+            document.querySelector("#copy-result").addEventListener("click", async ()=>{
+                await navigator.clipboard.writeText(formatResultForCopy(tool, result));
+                const btn = document.querySelector("#copy-result"); btn.textContent = "Скопировано";
+                setTimeout(()=>{ if(btn) btn.textContent = "Скопировать результат"; },1600);
+            });
+            document.querySelectorAll("[data-rating]").forEach(b=>b.addEventListener("click", ()=>sendFeedback(toolRunId, +b.dataset.rating)));
+        }
+
+        function renderResultCard(tool, key, value) {
+            const title = tool.outputLabels?.[key] || humanizeKey(key);
+            return `<article class="result-card"><h3>${escapeHtml(title)}</h3>${renderValue(value)}</article>`;
+        }
+
+        function renderValue(value) {
+            if (Array.isArray(value)) return value.length ? `<ul>${value.map(v=>`<li>${renderInlineValue(v)}</li>`).join("")}</ul>` : "<p>Нет данных.</p>";
+            if (value && typeof value === "object") {
+                if ("status" in value && "comment" in value) return `<div class="check-row"><span class="status-dot status-${escapeHtml(value.status||'neutral')}"></span><div><strong>${escapeHtml(statusLabels[value.status]||value.status)}</strong><p>${escapeHtml(value.comment||'')}</p></div></div>`;
+                if ("question" in value) return `<div><strong>${escapeHtml(value.question)}</strong>${value.options ? `<p style="margin-top:4px; color:var(--muted);">Варианты ответа: ${value.options.join(', ')}</p>` : ''}</div>`;
+                if ("steps" in value && Array.isArray(value.steps)) return `<div><strong>${escapeHtml(value.name || 'Алгоритм')}</strong><ol style="padding-left:20px; margin:8px 0;">${value.steps.map(s=>`<li>${escapeHtml(s)}</li>`).join("")}</ol></div>`;
+                return `<dl class="meta-list">${Object.entries(value).map(([k,v])=>`<div><dt>${escapeHtml(humanizeKey(k))}</dt><dd>${renderInlineValue(v)}</dd></div>`).join("")}</dl>`;
+            }
+            if (["green","yellow","red"].includes(value)) return `<div class="check-row"><span class="status-dot status-${value}"></span><strong>${escapeHtml(statusLabels[value])}</strong></div>`;
+            return `<p>${escapeHtml(String(value || "Нет данных."))}</p>`;
+        }
+
+        function renderInlineValue(value) {
+            if (value && typeof value === "object") {
+                if ("steps" in value && Array.isArray(value.steps)) return value.steps.map(s=>`- ${escapeHtml(s)}`).join("<br>");
+                return Object.entries(value).map(([k,v])=>`<strong>${escapeHtml(humanizeKey(k))}:</strong> ${escapeHtml(String(v))}`).join("<br>");
+            }
+            return escapeHtml(String(value));
+        }
+
+        function formatResultForCopy(tool, result) {
+            return Object.entries(result||{}).map(([k,v])=>`${tool.outputLabels?.[k] || humanizeKey(k)}\n${formatPlain(v)}`).join("\n\n");
+        }
+
+        function formatPlain(value) {
+            if (Array.isArray(value)) return value.map(v=>`- ${formatPlain(v)}`).join("\n");
+            if (value && typeof value === "object") {
+                if ("steps" in value && Array.isArray(value.steps)) return `${value.name || 'Алгоритм'}:\n${value.steps.map(s=>`  ${s}`).join("\n")}`;
+                return Object.entries(value).map(([k,v])=>`${humanizeKey(k)}: ${formatPlain(v)}`).join("\n");
+            }
+            return String(value||"");
+        }
+
+        function renderLeadSection(interestedTool = "") {
+            return `
+                <section class="section" id="lead"><div class="section-inner"><div class="lead-box">
+                    <div><p class="eyebrow">Заявка</p><h2>Оставить заявку</h2><p>Оставьте контакт, если хотите обсудить демо, внедрение Нейрометод AI в работу команды или обучение работе с AI-инструментами.</p><div class="warning">Не вставляйте персональные данные, коммерческую тайну и конфиденциальные документы без согласования с вашей компанией.</div></div>
+                    <form class="lead-form" id="lead-form" novalidate>
+                        <div class="lead-row"><div class="field"><label for="lead-name">Имя</label><input id="lead-name" name="name" type="text" required></div><div class="field"><label for="lead-contact">Email или Telegram</label><input id="lead-contact" name="contact" type="text" required></div></div>
+                        <div class="lead-row"><div class="field"><label for="lead-company">Компания</label><input id="lead-company" name="company" type="text"></div><div class="field"><label for="lead-role">Роль</label><input id="lead-role" name="role" type="text"></div></div>
+                        <div class="field"><label for="lead-tool">Интересующий инструмент</label><input id="lead-tool" name="interestedTool" type="text" value="${escapeHtml(interestedTool)}"></div>
+                        <div class="field"><label for="lead-comment">Комментарий</label><textarea id="lead-comment" name="comment" placeholder="Напишите, что хотите обсудить: демо, корпоративное внедрение, обучение команды или адаптацию инструментов под ваши задачи."></textarea></div>
+                        <button class="button primary" type="submit">Отправить заявку</button><div id="lead-message" aria-live="polite"></div>
+                    </form>
+                </div></div></section>
+            `;
+        }
+
+        function bindLeadForm() {
+            const form = document.querySelector("#lead-form");
+            if (!form) return;
+            const message = document.querySelector("#lead-message");
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const btn = form.querySelector("button[type='submit']"); btn.disabled = true; message.innerHTML = "";
+                try {
+                    const payload = Object.fromEntries(new FormData(form).entries());
+                    const res = await fetch("/api/leads", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload) });
+                    const body = await res.json().catch(()=>({}));
+                    if (!res.ok) throw new Error(body.message || "Не удалось отправить заявку");
+                    form.reset(); message.innerHTML = '<div class="message success">Заявка отправлена. Спасибо!</div>';
+                } catch (err) {
+                    message.innerHTML = `<div class="message error">${escapeHtml(err.message)}</div>`;
+                } finally { btn.disabled = false; }
+            });
+        }
+
+        async function sendFeedback(toolRunId, rating) {
+            const msgEl = document.querySelector("#feedback-message");
+            if (!toolRunId) { msgEl.textContent = "Оценка доступна после запуска."; return; }
+            try {
+                const res = await fetch("/api/feedback", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({toolRunId, rating, comment:""}) });
+                if (!res.ok) throw new Error("feedback");
+                msgEl.textContent = "Спасибо, оценка сохранена.";
+            } catch { msgEl.textContent = "Не удалось сохранить оценку."; }
+        }
+
+        function humanizeKey(key) { return key.replace(/([A-Z])/g," $1").replace(/_/g," ").trim().toLowerCase(); }
+        function escapeHtml(value) { return String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;"); }
+
+        boot();
+    </script>
+</body>
+</html>
